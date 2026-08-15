@@ -1,0 +1,3312 @@
+.website {
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* =========================
+   NAVBAR
+========================= */
+
+.navbar {
+  position: absolute;
+  top: 22px;
+  right: 0;
+  left: 0;
+  z-index: 20;
+  padding: 0 5%;
+}
+
+.navbar-container {
+  max-width: 1320px;
+  min-height: 88px;
+  margin: auto;
+
+  padding: 10px 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+
+  background: rgba(255, 253, 247, 0.96);
+
+  border: 1px solid rgba(65, 58, 42, 0.08);
+
+  border-radius: 28px;
+
+  box-shadow: 0 12px 40px rgba(35, 46, 34, 0.12);
+
+  backdrop-filter: blur(10px);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  flex-shrink: 0;
+}
+
+.brand-logo {
+  width: 82px;
+  height: 82px;
+
+  border-radius: 50%;
+  object-fit: contain;
+
+  background: #f4ead2;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.brand-text h1 {
+  margin: 0;
+
+  color: #30462f;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: 27px;
+  font-weight: 800;
+
+  line-height: 1.35;
+}
+
+.brand-text span {
+  color: #8a7551;
+
+  direction: ltr;
+  text-align: right;
+
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 30px;
+
+  flex: 1;
+}
+
+.nav-links a {
+  position: relative;
+
+  color: #37372f;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  transition: 0.25s ease;
+}
+
+.nav-links a::after {
+  content: "";
+
+  position: absolute;
+
+  right: 0;
+  bottom: -8px;
+
+  width: 0;
+  height: 2px;
+
+  border-radius: 20px;
+
+  background: #405f3c;
+
+  transition: 0.25s ease;
+}
+
+.nav-links a:hover {
+  color: #405f3c;
+}
+
+.nav-links a:hover::after {
+  width: 100%;
+}
+
+.search-icon-button {
+  width: 45px;
+  height: 45px;
+
+  display: grid;
+  place-items: center;
+
+  border: 0;
+  border-radius: 50%;
+
+  background: #405f3c;
+
+  color: white;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.search-icon-button span {
+  font-size: 25px;
+  line-height: 1;
+}
+
+.search-icon-button:hover {
+  background: #314b2f;
+  transform: translateY(-2px);
+}
+
+/* =========================
+   HERO
+========================= */
+
+.hero {
+  position: relative;
+
+  min-height: 760px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 180px 8% 160px;
+
+  /*
+    Temporary background.
+    We will replace this with our
+    final scouting hero image.
+  */
+
+  background:
+    linear-gradient(
+      110deg,
+      rgba(31, 55, 32, 0.87),
+      rgba(35, 53, 30, 0.46)
+    ),
+    url("https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=2000&q=85");
+
+  background-position: center;
+  background-size: cover;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+
+  background:
+    radial-gradient(
+      circle at 70% 20%,
+      rgba(247, 214, 133, 0.16),
+      transparent 30%
+    );
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+
+  width: 100%;
+  max-width: 720px;
+
+  margin-right: max(0px, calc((100vw - 1320px) / 2));
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 9px 18px;
+
+  margin-bottom: 24px;
+
+  border: 1px solid rgba(255, 255, 255, 0.35);
+
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.12);
+
+  color: #fff9e9;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  backdrop-filter: blur(7px);
+}
+
+.hero h2 {
+  max-width: 680px;
+
+  margin: 0;
+
+  color: white;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: clamp(42px, 5vw, 72px);
+
+  line-height: 1.25;
+
+  font-weight: 800;
+
+  letter-spacing: -1.8px;
+}
+
+.hero h2 span {
+  display: block;
+
+  color: #f3deb0;
+}
+
+.hero-description {
+  max-width: 590px;
+
+  margin: 25px 0 0;
+
+  color: rgba(255, 255, 255, 0.86);
+
+  font-size: 20px;
+
+  line-height: 1.9;
+}
+
+.primary-button {
+  margin-top: 34px;
+
+  min-height: 52px;
+
+  padding: 0 28px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+
+  border: 1px solid rgba(255, 255, 255, 0.32);
+
+  border-radius: 999px;
+
+  background: #f3ead5;
+
+  color: #30472f;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.14);
+
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease;
+}
+
+.primary-button:hover {
+  background: white;
+  transform: translateY(-3px);
+}
+
+.primary-button span {
+  font-size: 20px;
+}
+
+.slogan {
+  margin: 28px 0 0;
+
+  color: rgba(255, 250, 235, 0.76);
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: 15px;
+  font-weight: 500;
+}
+
+/* =========================
+   FLOATING SEARCH
+========================= */
+
+.floating-search-wrapper {
+  position: relative;
+  z-index: 5;
+
+  width: 100%;
+
+  padding: 0 7%;
+
+  margin-top: -47px;
+}
+
+.floating-search {
+  max-width: 980px;
+  min-height: 94px;
+
+  margin: auto;
+
+  padding: 15px 17px;
+
+  display: flex;
+  align-items: center;
+  gap: 15px;
+
+  border-radius: 35px;
+
+  background: #d7e1c4;
+
+  box-shadow: 0 18px 45px rgba(56, 71, 45, 0.16);
+}
+
+.search-field {
+  flex: 1;
+
+  min-height: 63px;
+
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  padding: 0 23px;
+
+  border: 1px solid rgba(63, 72, 52, 0.08);
+
+  border-radius: 24px;
+
+  background: white;
+}
+
+.search-symbol {
+  color: #52634a;
+
+  font-size: 27px;
+}
+
+.search-field input {
+  width: 100%;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  color: #302e28;
+
+  font-size: 16px;
+}
+
+.search-field input::placeholder {
+  color: #9b9a8f;
+}
+
+.search-button {
+  min-width: 135px;
+  min-height: 63px;
+
+  border: none;
+
+  border-radius: 23px;
+
+  background: #405f3c;
+
+  color: white;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-shadow: 0 7px 20px rgba(50, 79, 47, 0.22);
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.search-button:hover {
+  background: #314a2f;
+  transform: translateY(-2px);
+}
+
+/* =========================
+   STAGES
+========================= */
+
+.stages-section {
+  min-height: 520px;
+
+  padding: 110px 7% 100px;
+
+  background:
+    radial-gradient(
+      circle at 10% 40%,
+      rgba(196, 173, 118, 0.08),
+      transparent 25%
+    ),
+    #f7f2e5;
+}
+
+.section-heading {
+  max-width: 750px;
+
+  margin: auto;
+
+  text-align: center;
+}
+
+.section-heading > span {
+  display: block;
+
+  margin-bottom: 12px;
+
+  color: #927b4f;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: 18px;
+  font-weight: 700;
+
+  letter-spacing: 0;
+}
+
+.section-heading h2 {
+  margin: 0;
+
+  color: #30462f;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: clamp(30px, 4vw, 44px);
+
+  font-weight: 800;
+}
+
+.section-heading p {
+  max-width: 700px;
+
+  margin: 20px auto 0;
+
+  color: #6b695f;
+
+  font-size: 20px;
+  font-weight: 500;
+
+  line-height: 1.9;
+
+  text-align: center;
+}
+
+/* =========================
+   STAGE CARDS
+========================= */
+
+.stages-grid {
+  max-width: 1180px;
+
+  margin: 58px auto 0;
+
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 28px;
+}
+
+.stage-card {
+  overflow: hidden;
+
+  background: #fffdf7;
+
+  border: 1px solid rgba(70, 67, 54, 0.08);
+
+  border-radius: 24px;
+
+  box-shadow:
+    0 14px 35px rgba(54, 67, 48, 0.07);
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.stage-card:hover {
+  transform: translateY(-8px);
+
+  box-shadow:
+    0 24px 55px rgba(54, 67, 48, 0.14);
+}
+
+.stage-image-wrapper {
+  position: relative;
+
+  height: 255px;
+
+  overflow: hidden;
+}
+
+.stage-image {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  transition: transform 0.6s ease;
+}
+
+.stage-card:hover .stage-image {
+  transform: scale(1.055);
+}
+
+.stage-image-overlay {
+  position: absolute;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      to top,
+      rgba(29, 45, 29, 0.48),
+      rgba(29, 45, 29, 0.03) 60%
+    );
+}
+
+.stage-label {
+  position: absolute;
+
+  top: 18px;
+  right: 18px;
+
+  padding: 8px 14px;
+
+  background: rgba(255, 253, 245, 0.92);
+
+  color: #405f3c;
+
+  border-radius: 999px;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  backdrop-filter: blur(7px);
+}
+
+.stage-card-content {
+  padding: 25px 24px 27px;
+}
+
+.stage-card-content h3 {
+  margin: 0;
+
+  color: #30462f;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: 27px;
+  font-weight: 800;
+}
+
+.stage-card-content p {
+  min-height: 64px;
+
+  margin: 13px 0 23px;
+
+  color: #777267;
+
+  font-size: 16px;
+  font-weight: 500;
+
+  line-height: 1.9;
+}
+
+.stage-button {
+  width: 100%;
+
+  min-height: 50px;
+
+  padding: 0 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border: none;
+
+  border-radius: 15px;
+
+  background: #405f3c;
+
+  color: white;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.25s ease,
+    transform 0.25s ease;
+}
+
+.stage-button:hover {
+  background: #304a2e;
+}
+
+.stage-arrow {
+  width: 31px;
+  height: 31px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.13);
+
+  font-size: 18px;
+
+  transition: transform 0.25s ease;
+}
+
+.stage-button:hover .stage-arrow {
+  transform: translateX(-4px);
+}
+
+.placeholder-message {
+  max-width: 700px;
+
+  margin: 55px auto 0;
+
+  padding: 28px;
+
+  border: 1px dashed #b8b49f;
+
+  border-radius: 20px;
+
+  text-align: center;
+
+  color: #777366;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1000px) {
+  .nav-links {
+    display: none;
+  }
+
+  .hero {
+    min-height: 700px;
+
+    padding-right: 7%;
+    padding-left: 7%;
+  }
+
+  .hero-content {
+    margin-right: 0;
+  }
+
+  .stages-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+}
+
+@media (max-width: 650px) {
+  .navbar {
+    top: 12px;
+
+    padding: 0 14px;
+  }
+
+  .navbar-container {
+    min-height: 112px;
+
+    padding: 12px 28px;
+
+    border-radius: 22px;
+  }
+
+  .brand-logo {
+  width: 58px;
+  height: 58px;
+}
+
+.brand-text h1 {
+  font-size: 17px;
+}
+
+.brand-text span {
+  font-size: 11px;
+}
+
+  .search-icon-button {
+    width: 40px;
+    height: 40px;
+  }
+
+  .hero {
+    min-height: 680px;
+
+    padding:
+      155px
+      22px
+      130px;
+  }
+
+  .hero h2 {
+    font-size: 39px;
+    letter-spacing: -1px;
+  }
+
+  .hero-description {
+    font-size: 17px;
+  }
+
+  .floating-search-wrapper {
+    padding: 0 18px;
+
+    margin-top: -38px;
+  }
+
+  .floating-search {
+    min-height: auto;
+
+    padding: 11px;
+
+    gap: 9px;
+
+    border-radius: 27px;
+  }
+
+  .search-field {
+    min-height: 55px;
+
+    padding: 0 15px;
+
+    border-radius: 20px;
+  }
+
+  .search-field input {
+    font-size: 13px;
+  }
+
+  .search-symbol {
+    font-size: 22px;
+  }
+
+  .search-button {
+    min-width: 75px;
+    min-height: 55px;
+
+    border-radius: 19px;
+
+    font-size: 14px;
+  }
+
+  .stages-section {
+    padding: 95px 20px 70px;
+  }
+
+  .stages-grid {
+  grid-template-columns: 1fr;
+
+  gap: 22px;
+
+  margin-top: 42px;
+}
+
+.stage-image-wrapper {
+  height: 230px;
+}
+
+.stage-card-content h3 {
+  font-size: 24px;
+}
+
+.stage-card-content p {
+  min-height: auto;
+
+  font-size: 15px;
+}
+}
+
+/* ==========================================
+   STAGE PAGE
+========================================== */
+
+.stage-navbar {
+  position: absolute;
+}
+
+/* NAVBAR BUTTONS */
+
+.brand-button {
+  border: 0;
+  padding: 0;
+
+  background: transparent;
+
+  cursor: pointer;
+
+  text-align: right;
+}
+
+.stage-nav-links button {
+  position: relative;
+
+  border: 0;
+
+  padding: 0;
+
+  background: transparent;
+
+  color: #37372f;
+
+  font-family: "Tajawal", sans-serif;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: color 0.25s ease;
+}
+
+.stage-nav-links button:hover {
+  color: #405f3c;
+}
+
+.back-home-button {
+  min-height: 47px;
+
+  padding: 0 21px;
+
+  border: 0;
+
+  border-radius: 999px;
+
+  background: #405f3c;
+
+  color: white;
+
+  font-family: "Tajawal", sans-serif;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease;
+}
+
+.back-home-button:hover {
+  background: #30492e;
+
+  transform: translateY(-2px);
+}
+
+/* ==========================================
+   STAGE HERO
+========================================== */
+
+.stage-hero {
+  position: relative;
+
+  min-height: 530px;
+
+  display: flex;
+  align-items: flex-end;
+
+  padding:
+    190px
+    8%
+    85px;
+
+  background:
+    linear-gradient(
+      105deg,
+      rgba(26, 50, 29, 0.9),
+      rgba(37, 56, 30, 0.4)
+    ),
+    url(
+      "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=2000&q=85"
+    );
+
+  background-size: cover;
+
+  background-position: center;
+}
+
+.stage-hero-overlay {
+  position: absolute;
+
+  inset: 0;
+
+  background:
+    radial-gradient(
+      circle at 72% 25%,
+      rgba(238, 215, 159, 0.14),
+      transparent 33%
+    );
+}
+
+.stage-hero-content {
+  position: relative;
+
+  z-index: 2;
+
+  width: min(1180px, 100%);
+
+  margin: 0 auto;
+}
+
+.stage-hero-label {
+  display: inline-block;
+
+  margin-bottom: 15px;
+
+  color: #efdba9;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.stage-hero-content h2 {
+  margin: 0;
+
+  color: white;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: clamp(
+    42px,
+    5vw,
+    65px
+  );
+
+  line-height: 1.35;
+
+  font-weight: 800;
+}
+
+.stage-hero-content p {
+  max-width: 650px;
+
+  margin: 17px 0 0;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.85
+    );
+
+  font-size: 19px;
+
+  line-height: 1.9;
+}
+
+/* ==========================================
+   COMMON STAGE CONTAINER
+========================================== */
+
+.stage-content-container {
+  width: min(
+    1180px,
+    calc(100% - 60px)
+  );
+
+  margin: 0 auto;
+}
+
+/* ==========================================
+   STAGE INTRO
+========================================== */
+
+.stage-intro-section {
+  padding: 100px 0 80px;
+
+  background: #f7f2e5;
+}
+
+.stage-section-heading span {
+  display: block;
+
+  margin-bottom: 10px;
+
+  color: #927b4f;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.stage-section-heading h2 {
+  margin: 0;
+
+  color: #30462f;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: clamp(
+    31px,
+    4vw,
+    44px
+  );
+
+  line-height: 1.5;
+
+  font-weight: 800;
+}
+
+.stage-intro-card {
+  margin-top: 36px;
+
+  padding: 40px 44px;
+
+  border-right:
+    5px solid #c6a55a;
+
+  border-radius:
+    18px
+    0
+    0
+    18px;
+
+  background: #fffdf7;
+
+  box-shadow:
+    0
+    14px
+    40px
+    rgba(56, 65, 47, 0.07);
+}
+
+.stage-intro-card p {
+  margin: 0;
+
+  color: #59584f;
+
+  font-size: 20px;
+  font-weight: 500;
+
+  line-height: 2.2;
+}
+
+/* ==========================================
+   LEADER GUIDE
+========================================== */
+
+.leader-guide-section {
+  padding:
+    10px
+    0
+    100px;
+
+  background: #f7f2e5;
+}
+
+.leader-guide-card {
+  position: relative;
+
+  min-height: 340px;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.55fr)
+    minmax(230px, 0.65fr);
+
+  align-items: center;
+
+  gap: 48px;
+
+  padding: 50px 55px;
+
+  overflow: hidden;
+
+  border-radius: 30px;
+
+  background:
+    linear-gradient(
+      120deg,
+      #304a30,
+      #496844
+    );
+
+  box-shadow:
+    0
+    24px
+    65px
+    rgba(43, 64, 42, 0.18);
+}
+
+.leader-guide-card::before {
+  content: "";
+
+  position: absolute;
+
+  width: 360px;
+  height: 360px;
+
+  left: -120px;
+  top: -160px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(
+      243,
+      223,
+      176,
+      0.08
+    );
+}
+
+.leader-guide-content {
+  position: relative;
+
+  z-index: 2;
+}
+
+.guide-small-title {
+  color: #efdba9;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.leader-guide-content h2 {
+  margin: 12px 0 0;
+
+  color: white;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: clamp(
+    28px,
+    4vw,
+    40px
+  );
+
+  line-height: 1.5;
+}
+
+.leader-guide-content p {
+  max-width: 650px;
+
+  margin: 18px 0 0;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.78
+    );
+
+  font-size: 17px;
+
+  line-height: 1.95;
+}
+
+.leader-guide-actions {
+  margin-top: 29px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 14px;
+
+  flex-wrap: wrap;
+}
+
+.guide-primary-button,
+.guide-secondary-button {
+  min-height: 49px;
+
+  padding: 0 25px;
+
+  border-radius: 999px;
+
+  font-family: "Tajawal", sans-serif;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.guide-primary-button {
+  border: 0;
+
+  background: #f3ead5;
+
+  color: #30462f;
+}
+
+.guide-secondary-button {
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.42
+    );
+
+  background: transparent;
+
+  color: white;
+}
+
+.guide-primary-button:hover {
+  background: white;
+
+  transform: translateY(-2px);
+}
+
+.guide-secondary-button:hover {
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.1
+    );
+
+  transform: translateY(-2px);
+}
+
+/* PDF DECORATION */
+
+.guide-document-preview {
+  position: relative;
+
+  z-index: 2;
+
+  min-height: 225px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  align-items: center;
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.22
+    );
+
+  border-radius: 27px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.09
+    );
+
+  backdrop-filter: blur(8px);
+}
+
+.document-icon {
+  width: 90px;
+  height: 112px;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: flex-end;
+
+  padding-bottom: 17px;
+
+  border-radius:
+    11px
+    11px
+    18px
+    18px;
+
+  background: #f4ead4;
+
+  color: #a83e37;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: 21px;
+  font-weight: 800;
+
+  box-shadow:
+    0
+    16px
+    35px
+    rgba(0, 0, 0, 0.14);
+}
+
+.guide-document-preview span {
+  margin-top: 16px;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.86
+    );
+
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* ==========================================
+   CURRICULUM CTA
+========================================== */
+
+.stage-curriculum-section {
+  padding:
+    100px
+    0
+    115px;
+
+  background: #eef2e5;
+}
+
+.curriculum-callout {
+  max-width: 850px;
+
+  margin: 0 auto;
+
+  text-align: center;
+}
+
+.curriculum-callout > span {
+  color: #927b4f;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.curriculum-callout h2 {
+  margin: 12px 0 0;
+
+  color: #30462f;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: clamp(
+    33px,
+    4vw,
+    47px
+  );
+
+  line-height: 1.5;
+}
+
+.curriculum-callout p {
+  max-width: 650px;
+
+  margin: 19px auto 0;
+
+  color: #68685e;
+
+  font-size: 18px;
+
+  line-height: 1.95;
+
+  text-align: center;
+}
+
+.curriculum-button {
+  min-height: 55px;
+
+  margin-top: 31px;
+
+  padding: 0 29px;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 14px;
+
+  border: 0;
+
+  border-radius: 999px;
+
+  background: #405f3c;
+
+  color: white;
+
+  font-family: "Tajawal", sans-serif;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-shadow:
+    0
+    12px
+    30px
+    rgba(52, 79, 49, 0.18);
+
+  transition:
+    transform 0.22s ease,
+    background 0.22s ease;
+}
+
+.curriculum-button:hover {
+  background: #304a2e;
+
+  transform: translateY(-3px);
+}
+
+/* ==========================================
+   404
+========================================== */
+
+.not-found-page {
+  min-height: 100vh;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 22px;
+
+  padding: 30px;
+
+  background: #f7f2e5;
+
+  text-align: center;
+}
+
+.not-found-page h1 {
+  margin: 0;
+
+  color: #30462f;
+
+  font-family: "Alexandria", sans-serif;
+}
+
+.not-found-page button {
+  min-height: 48px;
+
+  padding: 0 23px;
+
+  border: 0;
+
+  border-radius: 999px;
+
+  background: #405f3c;
+
+  color: white;
+
+  font-family: "Tajawal", sans-serif;
+
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+/* ==========================================
+   STAGE RESPONSIVE
+========================================== */
+
+@media (max-width: 850px) {
+  .leader-guide-card {
+    grid-template-columns: 1fr;
+
+    padding: 42px 34px;
+  }
+
+  .guide-document-preview {
+    min-height: 195px;
+  }
+
+  .stage-nav-links {
+    display: none;
+  }
+}
+
+@media (max-width: 650px) {
+  .stage-hero {
+    min-height: 465px;
+
+    padding:
+      160px
+      22px
+      60px;
+  }
+
+  .stage-hero-content p {
+    font-size: 17px;
+  }
+
+  .stage-content-container {
+    width:
+      calc(
+        100% - 38px
+      );
+  }
+
+  .stage-intro-section {
+    padding:
+      75px
+      0
+      65px;
+  }
+
+  .stage-intro-card {
+    margin-top: 28px;
+
+    padding: 28px 24px;
+
+    border-right-width: 4px;
+  }
+
+  .stage-intro-card p {
+    font-size: 17px;
+
+    line-height: 2.05;
+  }
+
+  .leader-guide-section {
+    padding-bottom: 75px;
+  }
+
+  .leader-guide-card {
+    padding: 35px 24px;
+
+    border-radius: 24px;
+  }
+
+  .stage-curriculum-section {
+    padding:
+      78px
+      0
+      90px;
+  }
+
+  .curriculum-callout p {
+    font-size: 16px;
+  }
+
+  .back-home-button {
+    display: none;
+  }
+}
+
+/* ==========================================
+   CURRICULUM / FIELDS PAGE
+========================================== */
+
+.curriculum-navbar {
+  position: absolute;
+}
+
+/* HERO */
+
+.curriculum-hero {
+  position: relative;
+
+  min-height: 470px;
+
+  display: flex;
+  align-items: flex-end;
+
+  padding:
+    185px
+    8%
+    72px;
+
+  background:
+    linear-gradient(
+      110deg,
+      rgba(27, 50, 29, 0.93),
+      rgba(43, 62, 34, 0.48)
+    ),
+    url(
+      "https://images.unsplash.com/photo-1475483768296-6163e08872a1?auto=format&fit=crop&w=2000&q=85"
+    );
+
+  background-size: cover;
+  background-position: center;
+}
+
+.curriculum-hero-overlay {
+  position: absolute;
+  inset: 0;
+
+  background:
+    radial-gradient(
+      circle at 75% 20%,
+      rgba(235, 207, 143, 0.15),
+      transparent 32%
+    );
+}
+
+.curriculum-hero-content {
+  position: relative;
+  z-index: 2;
+
+  width: min(1180px, 100%);
+
+  margin: 0 auto;
+}
+
+.breadcrumb {
+  margin-bottom: 28px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  flex-wrap: wrap;
+
+  color: rgba(255, 255, 255, 0.65);
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.breadcrumb button {
+  border: 0;
+  padding: 0;
+
+  background: transparent;
+
+  color: rgba(255, 255, 255, 0.75);
+
+  font-family: "Tajawal", sans-serif;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: color 0.2s ease;
+}
+
+.breadcrumb button:hover {
+  color: #efdba9;
+}
+
+.breadcrumb strong {
+  color: #efdba9;
+
+  font-weight: 700;
+}
+
+.curriculum-hero-label {
+  display: block;
+
+  margin-bottom: 13px;
+
+  color: #efdba9;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.curriculum-hero-content h2 {
+  margin: 0;
+
+  color: white;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: clamp(
+    39px,
+    5vw,
+    61px
+  );
+
+  line-height: 1.4;
+
+  font-weight: 800;
+}
+
+.curriculum-hero-content p {
+  max-width: 660px;
+
+  margin: 18px 0 0;
+
+  color: rgba(255, 255, 255, 0.84);
+
+  font-size: 19px;
+
+  line-height: 1.9;
+}
+
+/* FIELDS */
+
+.fields-section {
+  padding: 100px 0 115px;
+
+  background:
+    radial-gradient(
+      circle at 4% 10%,
+      rgba(194, 164, 95, 0.09),
+      transparent 23%
+    ),
+    #f7f2e5;
+}
+
+.fields-container {
+  width: min(
+    1180px,
+    calc(100% - 60px)
+  );
+
+  margin: 0 auto;
+}
+
+.fields-heading {
+  max-width: 730px;
+
+  margin: 0 auto 55px;
+
+  text-align: center;
+}
+
+.fields-heading > span {
+  color: #927b4f;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.fields-heading h2 {
+  margin: 9px 0 0;
+
+  color: #30462f;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: clamp(
+    34px,
+    4vw,
+    47px
+  );
+
+  font-weight: 800;
+}
+
+.fields-heading p {
+  max-width: 590px;
+
+  margin: 17px auto 0;
+
+  color: #6b695f;
+
+  font-size: 18px;
+
+  line-height: 1.9;
+
+  text-align: center;
+}
+
+.fields-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 25px;
+}
+
+.field-card {
+  position: relative;
+
+  min-height: 340px;
+
+  padding: 29px;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(67, 71, 55, 0.08);
+
+  border-radius: 24px;
+
+  background: #fffdf7;
+
+  box-shadow:
+    0
+    14px
+    38px
+    rgba(50, 63, 45, 0.07);
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.field-card::after {
+  content: "";
+
+  position: absolute;
+
+  width: 135px;
+  height: 135px;
+
+  left: -62px;
+  bottom: -62px;
+
+  border-radius: 50%;
+
+  background: rgba(216, 228, 202, 0.38);
+}
+
+.field-card:hover {
+  transform: translateY(-7px);
+
+  border-color:
+    rgba(65, 95, 60, 0.18);
+
+  box-shadow:
+    0
+    23px
+    55px
+    rgba(50, 65, 46, 0.13);
+}
+
+.field-icon {
+  width: 62px;
+  height: 62px;
+
+  display: grid;
+  place-items: center;
+
+  margin-bottom: 24px;
+
+  border-radius: 18px;
+
+  background: #e8eedc;
+
+  color: #405f3c;
+
+  font-size: 29px;
+  font-weight: 800;
+}
+
+.field-content {
+  position: relative;
+  z-index: 2;
+
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.field-count {
+  color: #9b804d;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.field-content h3 {
+  margin: 8px 0 0;
+
+  color: #30462f;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: 23px;
+  font-weight: 800;
+
+  line-height: 1.5;
+}
+
+.field-content p {
+  margin: 13px 0 25px;
+
+  color: #747064;
+
+  font-size: 15px;
+
+  line-height: 1.9;
+}
+
+.field-button {
+  width: 100%;
+
+  min-height: 49px;
+
+  margin-top: auto;
+
+  padding: 0 17px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border: 0;
+
+  border-radius: 15px;
+
+  background: #405f3c;
+
+  color: white;
+
+  font-family: "Tajawal", sans-serif;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.field-button:hover {
+  background: #304a2e;
+
+  transform: translateY(-2px);
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 950px) {
+  .fields-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 650px) {
+  .curriculum-hero {
+    min-height: 430px;
+
+    padding:
+      155px
+      22px
+      57px;
+  }
+
+  .curriculum-hero-content p {
+    font-size: 17px;
+  }
+
+  .fields-section {
+    padding: 75px 0 90px;
+  }
+
+  .fields-container {
+    width:
+      calc(
+        100% - 38px
+      );
+  }
+
+  .fields-grid {
+    grid-template-columns: 1fr;
+
+    gap: 20px;
+  }
+
+  .field-card {
+    min-height: auto;
+
+    padding: 25px;
+  }
+
+  .fields-heading {
+    margin-bottom: 40px;
+  }
+
+  .fields-heading p {
+    font-size: 16px;
+  }
+}
+/* ==========================================
+   FIELD / LECTURES PAGE
+========================================== */
+
+.field-navbar {
+  position: absolute;
+}
+
+/* HERO */
+
+.field-hero {
+  position: relative;
+
+  min-height: 445px;
+
+  display: flex;
+  align-items: flex-end;
+
+  padding:
+    180px
+    8%
+    68px;
+
+  background:
+    linear-gradient(
+      110deg,
+      rgba(28, 49, 29, 0.94),
+      rgba(52, 68, 39, 0.5)
+    ),
+    url(
+      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=2000&q=85"
+    );
+
+  background-size: cover;
+  background-position: center;
+}
+
+.field-hero-overlay {
+  position: absolute;
+  inset: 0;
+
+  background:
+    radial-gradient(
+      circle at 72% 25%,
+      rgba(235, 209, 149, 0.14),
+      transparent 32%
+    );
+}
+
+.field-hero-content {
+  position: relative;
+  z-index: 2;
+
+  width: min(1180px, 100%);
+
+  margin: 0 auto;
+}
+
+.field-hero-label {
+  display: block;
+
+  margin-bottom: 12px;
+
+  color: #efdba9;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.field-hero-content h2 {
+  margin: 0;
+
+  color: white;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: clamp(
+    38px,
+    5vw,
+    58px
+  );
+
+  line-height: 1.4;
+
+  font-weight: 800;
+}
+
+.field-hero-content p {
+  max-width: 680px;
+
+  margin: 17px 0 0;
+
+  color: rgba(255, 255, 255, 0.84);
+
+  font-size: 18px;
+
+  line-height: 1.9;
+}
+
+/* ==========================================
+   LECTURES
+========================================== */
+
+.lectures-section {
+  padding: 95px 0 115px;
+
+  background:
+    radial-gradient(
+      circle at 7% 12%,
+      rgba(196, 169, 107, 0.08),
+      transparent 25%
+    ),
+    #f7f2e5;
+}
+
+.lectures-container {
+  width: min(
+    1080px,
+    calc(100% - 60px)
+  );
+
+  margin: 0 auto;
+}
+
+.lectures-heading {
+  max-width: 720px;
+}
+
+.lectures-heading > span {
+  color: #927b4f;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.lectures-heading h2 {
+  margin: 9px 0 0;
+
+  color: #30462f;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: clamp(
+    34px,
+    4vw,
+    46px
+  );
+
+  font-weight: 800;
+}
+
+.lectures-heading p {
+  margin: 16px 0 0;
+
+  color: #6b695f;
+
+  font-size: 18px;
+
+  line-height: 1.9;
+}
+
+/* SEARCH */
+
+.lectures-search {
+  max-width: 650px;
+
+  min-height: 60px;
+
+  margin-top: 35px;
+
+  padding: 0 21px;
+
+  display: flex;
+  align-items: center;
+  gap: 13px;
+
+  border:
+    1px solid
+    rgba(67, 72, 58, 0.09);
+
+  border-radius: 18px;
+
+  background: white;
+
+  box-shadow:
+    0
+    10px
+    30px
+    rgba(54, 64, 48, 0.05);
+}
+
+.lectures-search span {
+  color: #52634a;
+
+  font-size: 26px;
+}
+
+.lectures-search input {
+  width: 100%;
+
+  border: 0;
+  outline: 0;
+
+  background: transparent;
+
+  color: #34342d;
+
+  font-family: "Tajawal", sans-serif;
+
+  font-size: 16px;
+}
+
+.lectures-search input::placeholder {
+  color: #99978c;
+}
+
+/* LIST */
+
+.lectures-list {
+  margin-top: 46px;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 17px;
+}
+
+.lecture-card {
+  position: relative;
+
+  min-height: 132px;
+
+  padding: 22px 25px;
+
+  display: grid;
+
+  grid-template-columns:
+    62px
+    minmax(0, 1fr)
+    auto;
+
+  align-items: center;
+
+  gap: 23px;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(64, 72, 57, 0.08);
+
+  border-radius: 20px;
+
+  background: #fffdf8;
+
+  box-shadow:
+    0
+    11px
+    32px
+    rgba(56, 66, 49, 0.055);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.lecture-card::after {
+  content: "";
+
+  position: absolute;
+
+  width: 115px;
+  height: 115px;
+
+  left: -70px;
+  bottom: -70px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(
+      210,
+      224,
+      197,
+      0.32
+    );
+}
+
+.lecture-card:hover {
+  transform: translateY(-4px);
+
+  border-color:
+    rgba(64, 95, 60, 0.18);
+
+  box-shadow:
+    0
+    20px
+    45px
+    rgba(51, 64, 47, 0.1);
+}
+
+.lecture-number {
+  width: 58px;
+  height: 58px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 17px;
+
+  background: #e9eedf;
+
+  color: #405f3c;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.lecture-info {
+  position: relative;
+  z-index: 2;
+}
+
+.lecture-type {
+  color: #9a814f;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.lecture-info h3 {
+  margin: 4px 0 0;
+
+  color: #30462f;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: 22px;
+  font-weight: 800;
+
+  line-height: 1.5;
+}
+
+.lecture-info p {
+  margin: 6px 0 0;
+
+  color: #7c796e;
+
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.lecture-actions {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  flex-wrap: wrap;
+}
+
+.lecture-view-button,
+.lecture-download-button {
+  min-height: 45px;
+
+  padding: 0 19px;
+
+  border-radius: 14px;
+
+  font-family: "Tajawal", sans-serif;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.lecture-view-button {
+  border: 0;
+
+  background: #405f3c;
+
+  color: white;
+}
+
+.lecture-view-button:hover {
+  background: #304a2e;
+
+  transform: translateY(-2px);
+}
+
+.lecture-download-button {
+  border:
+    1px solid
+    rgba(64, 95, 60, 0.22);
+
+  background: transparent;
+
+  color: #405f3c;
+}
+
+.lecture-download-button:hover {
+  background: #edf1e6;
+
+  transform: translateY(-2px);
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 800px) {
+  .lecture-card {
+    grid-template-columns:
+      55px
+      minmax(0, 1fr);
+
+    gap: 18px;
+  }
+
+  .lecture-actions {
+    grid-column: 1 / -1;
+
+    padding-right: 73px;
+  }
+}
+
+@media (max-width: 650px) {
+  .field-hero {
+    min-height: 420px;
+
+    padding:
+      155px
+      22px
+      55px;
+  }
+
+  .field-hero-content p {
+    font-size: 16px;
+  }
+
+  .lectures-section {
+    padding:
+      75px
+      0
+      90px;
+  }
+
+  .lectures-container {
+    width:
+      calc(
+        100% - 38px
+      );
+  }
+
+  .lectures-heading p {
+    font-size: 16px;
+  }
+
+  .lectures-search {
+    min-height: 56px;
+
+    padding: 0 17px;
+  }
+
+  .lecture-card {
+    padding: 20px;
+
+    grid-template-columns: 1fr;
+
+    gap: 13px;
+  }
+
+  .lecture-number {
+    width: 50px;
+    height: 50px;
+
+    border-radius: 14px;
+  }
+
+  .lecture-info h3 {
+    font-size: 20px;
+  }
+
+  .lecture-actions {
+    grid-column: auto;
+
+    padding-right: 0;
+
+    width: 100%;
+  }
+
+  .lecture-view-button,
+  .lecture-download-button {
+    flex: 1;
+  }
+}
+/* ==========================================
+   LECTURE / PDF PAGE
+========================================== */
+
+.lecture-navbar {
+  position: absolute;
+}
+
+/* HERO */
+
+.lecture-hero {
+  position: relative;
+
+  min-height: 430px;
+
+  display: flex;
+  align-items: flex-end;
+
+  padding:
+    180px
+    8%
+    65px;
+
+  background:
+    linear-gradient(
+      110deg,
+      rgba(27, 49, 29, 0.95),
+      rgba(50, 67, 38, 0.5)
+    ),
+    url(
+      "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=2000&q=85"
+    );
+
+  background-size: cover;
+  background-position: center;
+}
+
+.lecture-hero-overlay {
+  position: absolute;
+  inset: 0;
+
+  background:
+    radial-gradient(
+      circle at 76% 22%,
+      rgba(238, 211, 149, 0.15),
+      transparent 31%
+    );
+}
+
+.lecture-hero-content {
+  position: relative;
+  z-index: 2;
+
+  width: min(1180px, 100%);
+
+  margin: 0 auto;
+}
+
+.lecture-hero-label {
+  display: block;
+
+  margin-bottom: 10px;
+
+  color: #efdba9;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.lecture-hero-content h2 {
+  margin: 0;
+
+  color: white;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: clamp(
+    40px,
+    5vw,
+    60px
+  );
+
+  line-height: 1.4;
+
+  font-weight: 800;
+}
+
+.lecture-hero-content > p {
+  margin: 14px 0 0;
+
+  color: rgba(255, 255, 255, 0.8);
+
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.lecture-dot {
+  margin: 0 10px;
+
+  color: #efdba9;
+}
+
+/* DOCUMENT SECTION */
+
+.lecture-document-section {
+  padding: 90px 0 110px;
+
+  background:
+    radial-gradient(
+      circle at 5% 10%,
+      rgba(194, 164, 95, 0.08),
+      transparent 23%
+    ),
+    #f7f2e5;
+}
+
+.lecture-document-container {
+  width: min(
+    1180px,
+    calc(100% - 60px)
+  );
+
+  margin: 0 auto;
+}
+
+/* DOCUMENT HEADER */
+
+.lecture-document-header {
+  display: flex;
+
+  align-items: flex-end;
+
+  justify-content: space-between;
+
+  gap: 35px;
+
+  margin-bottom: 38px;
+}
+
+.document-small-label {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: #927b4f;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.lecture-document-header h2 {
+  margin: 0;
+
+  color: #30462f;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: clamp(
+    31px,
+    4vw,
+    43px
+  );
+
+  line-height: 1.5;
+}
+
+.lecture-document-header p {
+  max-width: 650px;
+
+  margin: 13px 0 0;
+
+  color: #6d6b61;
+
+  font-size: 17px;
+
+  line-height: 1.9;
+}
+
+.main-download-button {
+  min-height: 53px;
+
+  padding: 0 24px;
+
+  flex-shrink: 0;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 13px;
+
+  border-radius: 999px;
+
+  background: #405f3c;
+
+  color: white;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  box-shadow:
+    0
+    12px
+    28px
+    rgba(52, 78, 49, 0.16);
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.main-download-button:hover {
+  background: #304a2e;
+
+  transform: translateY(-2px);
+}
+
+.download-icon {
+  width: 29px;
+  height: 29px;
+
+  display: grid;
+
+  place-items: center;
+
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.13);
+
+  font-size: 18px;
+}
+
+/* PDF CARD */
+
+.pdf-viewer-card {
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(60, 69, 54, 0.1);
+
+  border-radius: 25px;
+
+  background: white;
+
+  box-shadow:
+    0
+    20px
+    55px
+    rgba(49, 62, 45, 0.11);
+}
+
+.pdf-viewer-topbar {
+  min-height: 84px;
+
+  padding: 14px 20px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 20px;
+
+  border-bottom:
+    1px solid
+    rgba(61, 70, 55, 0.08);
+
+  background: #fffdf8;
+}
+
+.pdf-file-info {
+  display: flex;
+
+  align-items: center;
+
+  gap: 14px;
+}
+
+.mini-pdf-icon {
+  width: 48px;
+  height: 56px;
+
+  display: grid;
+
+  place-items: center;
+
+  flex-shrink: 0;
+
+  border-radius: 9px;
+
+  background: #f4e8df;
+
+  color: #a9433b;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.pdf-file-info > div:last-child {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+.pdf-file-info strong {
+  color: #30462f;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: 16px;
+}
+
+.pdf-file-info span {
+  color: #858174;
+
+  font-size: 13px;
+}
+
+.open-fullscreen-button {
+  min-height: 42px;
+
+  padding: 0 17px;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  border:
+    1px solid
+    rgba(64, 95, 60, 0.18);
+
+  border-radius: 13px;
+
+  color: #405f3c;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  transition:
+    background 0.2s ease;
+}
+
+.open-fullscreen-button:hover {
+  background: #edf1e6;
+}
+
+/* EMBED */
+
+.pdf-viewer-wrapper {
+  width: 100%;
+
+  height: 850px;
+
+  background: #e5e5e5;
+}
+
+.pdf-viewer {
+  width: 100%;
+
+  height: 100%;
+
+  border: 0;
+
+  display: block;
+}
+
+/* BOTTOM ACTIONS */
+
+.lecture-bottom-actions {
+  margin-top: 28px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 15px;
+
+  flex-wrap: wrap;
+}
+
+.return-to-lectures-button {
+  min-height: 48px;
+
+  padding: 0 21px;
+
+  border:
+    1px solid
+    rgba(64, 95, 60, 0.2);
+
+  border-radius: 14px;
+
+  background: transparent;
+
+  color: #405f3c;
+
+  font-family: "Tajawal", sans-serif;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.return-to-lectures-button:hover {
+  background: #e9eedf;
+
+  transform: translateY(-2px);
+}
+
+.secondary-download-button {
+  min-height: 48px;
+
+  padding: 0 22px;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  border-radius: 14px;
+
+  background: #405f3c;
+
+  color: white;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.secondary-download-button:hover {
+  background: #304a2e;
+
+  transform: translateY(-2px);
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 760px) {
+  .lecture-document-header {
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+
+  .main-download-button {
+    align-self: stretch;
+  }
+
+  .pdf-viewer-wrapper {
+    height: 700px;
+  }
+}
+
+@media (max-width: 650px) {
+  .lecture-hero {
+    min-height: 415px;
+
+    padding:
+      155px
+      22px
+      55px;
+  }
+
+  .lecture-document-section {
+    padding:
+      72px
+      0
+      85px;
+  }
+
+  .lecture-document-container {
+    width:
+      calc(
+        100% - 30px
+      );
+  }
+
+  .lecture-document-header p {
+    font-size: 16px;
+  }
+
+  .pdf-viewer-card {
+    border-radius: 18px;
+  }
+
+  .pdf-viewer-topbar {
+    min-height: auto;
+
+    padding: 13px;
+
+    align-items: flex-start;
+  }
+
+  .open-fullscreen-button {
+    display: none;
+  }
+
+  .pdf-viewer-wrapper {
+    height: 620px;
+  }
+
+  .lecture-bottom-actions {
+    flex-direction: column;
+  }
+
+  .return-to-lectures-button,
+  .secondary-download-button {
+    width: 100%;
+
+    justify-content: center;
+  }
+}
+.guide-updated-date {
+  display: block;
+
+  margin-top: 13px;
+
+  color: rgba(255, 255, 255, 0.66);
+
+  font-size: 14px;
+  font-weight: 600;
+}
+/* ==========================================
+   HOMEPAGE SEARCH RESULTS
+========================================== */
+
+.search-results-panel {
+  position: relative;
+
+  max-width: 900px;
+
+  margin: 12px auto 0;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(64, 72, 56, 0.08);
+
+  border-radius: 22px;
+
+  background: #fffdf8;
+
+  box-shadow:
+    0
+    18px
+    45px
+    rgba(50, 62, 46, 0.12);
+}
+
+.search-result-item {
+  width: 100%;
+
+  min-height: 74px;
+
+  padding: 15px 20px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 20px;
+
+  border: 0;
+
+  border-bottom:
+    1px solid
+    rgba(62, 70, 55, 0.07);
+
+  background: transparent;
+
+  text-align: right;
+
+  cursor: pointer;
+
+  transition: background 0.2s ease;
+}
+
+.search-result-item:last-child {
+  border-bottom: 0;
+}
+
+.search-result-item:hover {
+  background: #f1f4eb;
+}
+
+.search-result-item > div {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+.search-result-item strong {
+  color: #30462f;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.search-result-item span {
+  color: #827e72;
+
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.search-result-arrow {
+  width: 34px;
+  height: 34px;
+
+  display: grid;
+
+  place-items: center;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background: #e8eedf;
+
+  color: #405f3c;
+
+  font-size: 18px !important;
+
+  font-weight: 700 !important;
+}
+
+.no-search-results {
+  padding: 25px;
+
+  color: #777368;
+
+  text-align: center;
+
+  font-size: 15px;
+  font-weight: 600;
+}
+
+@media (max-width: 650px) {
+  .search-results-panel {
+    margin-top: 9px;
+
+    border-radius: 18px;
+  }
+
+  .search-result-item {
+    min-height: 67px;
+
+    padding: 13px 15px;
+  }
+
+  .search-result-item strong {
+    font-size: 14px;
+  }
+
+  .search-result-item span {
+    font-size: 12px;
+  }
+}
+.lectures-empty-state {
+  padding: 55px 25px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  border: 1px dashed rgba(64, 95, 60, 0.2);
+
+  border-radius: 22px;
+
+  background: rgba(255, 253, 248, 0.7);
+
+  text-align: center;
+}
+
+.lectures-empty-state > span {
+  width: 58px;
+  height: 58px;
+
+  display: grid;
+  place-items: center;
+
+  margin-bottom: 15px;
+
+  border-radius: 50%;
+
+  background: #e8eedf;
+
+  color: #405f3c;
+
+  font-size: 27px;
+}
+
+.lectures-empty-state h3 {
+  margin: 0;
+
+  color: #30462f;
+
+  font-family: "Alexandria", sans-serif;
+
+  font-size: 20px;
+}
+
+.lectures-empty-state p {
+  margin: 8px 0 0;
+
+  color: #7b786e;
+
+  font-size: 15px;
+}
