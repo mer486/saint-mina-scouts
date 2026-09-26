@@ -12,8 +12,7 @@ export async function onRequestGet(context) {
       return Response.json(
         {
           success: false,
-          error:
-            "Stage and field are required",
+          error: "Stage and field are required",
         },
         {
           status: 400,
@@ -50,7 +49,6 @@ export async function onRequestGet(context) {
 
           WHERE stages.slug = ?
             AND fields.slug = ?
-
             AND stages.is_published = 1
             AND fields.is_published = 1
             AND lectures.is_published = 1
@@ -68,9 +66,9 @@ export async function onRequestGet(context) {
     return Response.json(
       {
         success: false,
-        error:
-          "Failed to load lectures",
-        details: error.message,
+        error: "Failed to load lectures",
+        details:
+          error?.message || String(error),
       },
       {
         status: 500,
