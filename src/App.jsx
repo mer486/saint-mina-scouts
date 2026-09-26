@@ -1,3 +1,4 @@
+import AdminPage from "./pages/AdminPage";
 import { Route, Routes } from "react-router-dom";
 
 import "./App.css";
@@ -11,6 +12,9 @@ import LecturePage from "./pages/LecturePage.jsx";
 function App() {
   return (
     <Routes>
+
+      <Route path="/admin" element={<AdminPage />} />
+      
       <Route
         path="/"
         element={<HomePage />}
