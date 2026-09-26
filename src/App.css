@@ -3847,3 +3847,40 @@
   background: #eee9e2;
   color: #8a8176;
 }
+
+.admin-back-button {
+  margin-bottom: 30px;
+  padding: 10px 0;
+  border: 0;
+  background: transparent;
+  color: #405f3c;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-manage-button {
+  background: #405f3c !important;
+  color: #fff !important;
+  border-color: #405f3c !important;
+}
+
+.admin-meta {
+  margin-top: 8px !important;
+  font-size: 13px;
+  color: #927b4f !important;
+}
+
+.admin-pdf-link {
+  display: inline-block;
+  margin-top: 8px;
+  color: #405f3c;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.admin-form-group small {
+  color: #8a8176;
+  font-size: 12px;
+}

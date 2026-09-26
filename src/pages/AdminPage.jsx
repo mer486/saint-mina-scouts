@@ -8,22 +8,28 @@ function AdminPage() {
   // AUTH
   // ==========================================
 
-  const [checkingAuth, setCheckingAuth] =
-    useState(true);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
   // ==========================================
-  // DATA
+  // MAIN DATA
   // ==========================================
 
   const [stages, setStages] = useState([]);
-
   const [selectedStage, setSelectedStage] =
     useState("baraem");
 
   const [fields, setFields] = useState([]);
+  const [selectedField, setSelectedField] =
+    useState(null);
+
+  const [lectures, setLectures] = useState([]);
+
+  // fields | lectures
+  const [adminView, setAdminView] =
+    useState("fields");
 
   // ==========================================
-  // LOADING / ERROR
+  // LOADING / ERRORS
   // ==========================================
 
   const [loadingStages, setLoadingStages] =
@@ -31,6 +37,9 @@ function AdminPage() {
 
   const [loadingFields, setLoadingFields] =
     useState(true);
+
+  const [loadingLectures, setLoadingLectures] =
+    useState(false);
 
   const [error, setError] = useState("");
 
@@ -71,7 +80,61 @@ function AdminPage() {
     useState(false);
 
   // ==========================================
-  // CHECK ADMIN SESSION
+  // ADD LECTURE
+  // ==========================================
+
+  const [showAddLecture, setShowAddLecture] =
+    useState(false);
+
+  const [newLectureTitle, setNewLectureTitle] =
+    useState("");
+
+  const [
+    newLectureDescription,
+    setNewLectureDescription,
+  ] = useState("");
+
+  const [newLecturePdf, setNewLecturePdf] =
+    useState("");
+
+  const [newLectureDate, setNewLectureDate] =
+    useState("");
+
+  const [savingLecture, setSavingLecture] =
+    useState(false);
+
+  // ==========================================
+  // EDIT LECTURE
+  // ==========================================
+
+  const [editingLecture, setEditingLecture] =
+    useState(null);
+
+  const [
+    editLectureTitle,
+    setEditLectureTitle,
+  ] = useState("");
+
+  const [
+    editLectureDescription,
+    setEditLectureDescription,
+  ] = useState("");
+
+  const [
+    editLecturePdf,
+    setEditLecturePdf,
+  ] = useState("");
+
+  const [
+    editLectureDate,
+    setEditLectureDate,
+  ] = useState("");
+
+  const [updatingLecture, setUpdatingLecture] =
+    useState(false);
+
+  // ==========================================
+  // AUTH CHECK
   // ==========================================
 
   useEffect(() => {
@@ -92,7 +155,7 @@ function AdminPage() {
         }
 
         setCheckingAuth(false);
-      } catch (error) {
+      } catch {
         navigate("/admin/login", {
           replace: true,
         });
@@ -107,9 +170,7 @@ function AdminPage() {
   // ==========================================
 
   useEffect(() => {
-    if (checkingAuth) {
-      return;
-    }
+    if (checkingAuth) return;
 
     async function loadStages() {
       try {
@@ -121,9 +182,7 @@ function AdminPage() {
         );
 
         if (!response.ok) {
-          throw new Error(
-            "Failed to load stages"
-          );
+          throw new Error();
         }
 
         const data = await response.json();
@@ -131,20 +190,18 @@ function AdminPage() {
         setStages(data);
 
         if (data.length > 0) {
-          setSelectedStage((currentStage) => {
+          setSelectedStage((current) => {
             const exists = data.some(
               (stage) =>
-                stage.slug === currentStage
+                stage.slug === current
             );
 
-            if (exists) {
-              return currentStage;
-            }
-
-            return data[0].slug;
+            return exists
+              ? current
+              : data[0].slug;
           });
         }
-      } catch (error) {
+      } catch {
         setError(
           "حدث خطأ أثناء تحميل المراحل."
         );
@@ -161,9 +218,7 @@ function AdminPage() {
   // ==========================================
 
   async function loadFields() {
-    if (!selectedStage) {
-      return;
-    }
+    if (!selectedStage) return;
 
     try {
       setLoadingFields(true);
@@ -179,20 +234,17 @@ function AdminPage() {
         navigate("/admin/login", {
           replace: true,
         });
-
         return;
       }
 
       if (!response.ok) {
-        throw new Error(
-          "Failed to load fields"
-        );
+        throw new Error();
       }
 
       const data = await response.json();
 
       setFields(data);
-    } catch (error) {
+    } catch {
       setError(
         "حدث خطأ أثناء تحميل المجالات."
       );
@@ -202,15 +254,68 @@ function AdminPage() {
   }
 
   useEffect(() => {
-    if (
-      checkingAuth ||
-      !selectedStage
-    ) {
+    if (checkingAuth || !selectedStage) {
       return;
     }
 
     loadFields();
   }, [selectedStage, checkingAuth]);
+
+  // ==========================================
+  // LOAD LECTURES
+  // ==========================================
+
+  async function loadLectures(fieldId) {
+    if (!fieldId) return;
+
+    try {
+      setLoadingLectures(true);
+      setError("");
+
+      const response = await fetch(
+        `/api/admin/lectures?field=${fieldId}`
+      );
+
+      if (response.status === 401) {
+        navigate("/admin/login", {
+          replace: true,
+        });
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error();
+      }
+
+      const data = await response.json();
+
+      setLectures(data);
+    } catch {
+      setError(
+        "حدث خطأ أثناء تحميل المحاضرات."
+      );
+    } finally {
+      setLoadingLectures(false);
+    }
+  }
+
+  // ==========================================
+  // OPEN FIELD LECTURES
+  // ==========================================
+
+  async function openLectures(field) {
+    setSelectedField(field);
+    setAdminView("lectures");
+
+    await loadLectures(field.id);
+  }
+
+  function backToFields() {
+    setAdminView("fields");
+    setSelectedField(null);
+    setLectures([]);
+    setError("");
+  }
 
   // ==========================================
   // ADD FIELD
@@ -219,26 +324,19 @@ function AdminPage() {
   function openAddField() {
     setNewFieldName("");
     setNewFieldDescription("");
-    setError("");
     setShowAddField(true);
   }
 
   function closeAddField() {
-    if (savingField) {
-      return;
-    }
+    if (savingField) return;
 
     setShowAddField(false);
-    setNewFieldName("");
-    setNewFieldDescription("");
   }
 
   async function handleAddField(event) {
     event.preventDefault();
 
-    if (!newFieldName.trim()) {
-      return;
-    }
+    if (!newFieldName.trim()) return;
 
     try {
       setSavingField(true);
@@ -267,20 +365,13 @@ function AdminPage() {
         navigate("/admin/login", {
           replace: true,
         });
-
         return;
       }
 
       const data = await response.json();
 
-      if (
-        !response.ok ||
-        !data.success
-      ) {
-        throw new Error(
-          data.error ||
-            "Failed to create field"
-        );
+      if (!response.ok || !data.success) {
+        throw new Error();
       }
 
       setShowAddField(false);
@@ -288,7 +379,7 @@ function AdminPage() {
       setNewFieldDescription("");
 
       await loadFields();
-    } catch (error) {
+    } catch {
       setError(
         "حدث خطأ أثناء إضافة المجال."
       );
@@ -302,8 +393,6 @@ function AdminPage() {
   // ==========================================
 
   function openEditField(field) {
-    setError("");
-
     setEditingField(field);
 
     setEditFieldName(
@@ -316,13 +405,9 @@ function AdminPage() {
   }
 
   function closeEditField() {
-    if (updatingField) {
-      return;
-    }
+    if (updatingField) return;
 
     setEditingField(null);
-    setEditFieldName("");
-    setEditFieldDescription("");
   }
 
   async function handleEditField(event) {
@@ -362,28 +447,19 @@ function AdminPage() {
         navigate("/admin/login", {
           replace: true,
         });
-
         return;
       }
 
       const data = await response.json();
 
-      if (
-        !response.ok ||
-        !data.success
-      ) {
-        throw new Error(
-          data.error ||
-            "Failed to update field"
-        );
+      if (!response.ok || !data.success) {
+        throw new Error();
       }
 
       setEditingField(null);
-      setEditFieldName("");
-      setEditFieldDescription("");
 
       await loadFields();
-    } catch (error) {
+    } catch {
       setError(
         "حدث خطأ أثناء تعديل المجال."
       );
@@ -393,15 +469,12 @@ function AdminPage() {
   }
 
   // ==========================================
-  // PUBLISH / UNPUBLISH FIELD
+  // FIELD PUBLISH
   // ==========================================
 
   async function toggleFieldPublish(field) {
-    const currentlyPublished =
-      Number(field.is_published) === 1;
-
     const newStatus =
-      !currentlyPublished;
+      Number(field.is_published) !== 1;
 
     try {
       setError("");
@@ -427,24 +500,15 @@ function AdminPage() {
         navigate("/admin/login", {
           replace: true,
         });
-
         return;
       }
 
-      const data = await response.json();
-
-      if (
-        !response.ok ||
-        !data.success
-      ) {
-        throw new Error(
-          data.error ||
-            "Failed to change status"
-        );
+      if (!response.ok) {
+        throw new Error();
       }
 
       await loadFields();
-    } catch (error) {
+    } catch {
       setError(
         "حدث خطأ أثناء تغيير حالة النشر."
       );
@@ -457,16 +521,12 @@ function AdminPage() {
 
   async function deleteField(field) {
     const confirmed = window.confirm(
-      `هل أنت متأكد من حذف "${field.name}"؟\n\nسيتم حذف جميع المحاضرات التابعة لهذا المجال أيضًا، ولا يمكن التراجع عن هذه العملية.`
+      `هل أنت متأكد من حذف "${field.name}"؟\n\nسيتم حذف المحاضرات التابعة له أيضًا.`
     );
 
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
     try {
-      setError("");
-
       const response = await fetch(
         `/api/admin/fields?id=${field.id}`,
         {
@@ -478,24 +538,15 @@ function AdminPage() {
         navigate("/admin/login", {
           replace: true,
         });
-
         return;
       }
 
-      const data = await response.json();
-
-      if (
-        !response.ok ||
-        !data.success
-      ) {
-        throw new Error(
-          data.error ||
-            "Failed to delete field"
-        );
+      if (!response.ok) {
+        throw new Error();
       }
 
       await loadFields();
-    } catch (error) {
+    } catch {
       setError(
         "حدث خطأ أثناء حذف المجال."
       );
@@ -503,7 +554,305 @@ function AdminPage() {
   }
 
   // ==========================================
-  // AUTH LOADING SCREEN
+  // ADD LECTURE
+  // ==========================================
+
+  function openAddLecture() {
+    setNewLectureTitle("");
+    setNewLectureDescription("");
+
+    setNewLecturePdf(
+      "/pdfs/sample-lecture.pdf"
+    );
+
+    setNewLectureDate(
+      new Date()
+        .toISOString()
+        .slice(0, 10)
+    );
+
+    setShowAddLecture(true);
+  }
+
+  function closeAddLecture() {
+    if (savingLecture) return;
+
+    setShowAddLecture(false);
+  }
+
+  async function handleAddLecture(event) {
+    event.preventDefault();
+
+    if (
+      !selectedField ||
+      !newLectureTitle.trim()
+    ) {
+      return;
+    }
+
+    try {
+      setSavingLecture(true);
+      setError("");
+
+      const response = await fetch(
+        "/api/admin/lectures",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            fieldId: selectedField.id,
+
+            title:
+              newLectureTitle.trim(),
+
+            description:
+              newLectureDescription.trim(),
+
+            pdfKey:
+              newLecturePdf.trim(),
+
+            pdfOriginalName:
+              newLecturePdf
+                .split("/")
+                .pop(),
+
+            updatedDate:
+              newLectureDate,
+          }),
+        }
+      );
+
+      if (response.status === 401) {
+        navigate("/admin/login", {
+          replace: true,
+        });
+        return;
+      }
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error();
+      }
+
+      setShowAddLecture(false);
+
+      await loadLectures(
+        selectedField.id
+      );
+    } catch {
+      setError(
+        "حدث خطأ أثناء إضافة المحاضرة."
+      );
+    } finally {
+      setSavingLecture(false);
+    }
+  }
+
+  // ==========================================
+  // EDIT LECTURE
+  // ==========================================
+
+  function openEditLecture(lecture) {
+    setEditingLecture(lecture);
+
+    setEditLectureTitle(
+      lecture.title || ""
+    );
+
+    setEditLectureDescription(
+      lecture.description || ""
+    );
+
+    setEditLecturePdf(
+      lecture.pdf_key || ""
+    );
+
+    setEditLectureDate(
+      lecture.updated_date || ""
+    );
+  }
+
+  function closeEditLecture() {
+    if (updatingLecture) return;
+
+    setEditingLecture(null);
+  }
+
+  async function handleEditLecture(event) {
+    event.preventDefault();
+
+    if (
+      !editingLecture ||
+      !editLectureTitle.trim()
+    ) {
+      return;
+    }
+
+    try {
+      setUpdatingLecture(true);
+      setError("");
+
+      const response = await fetch(
+        "/api/admin/lectures",
+        {
+          method: "PUT",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            id: editingLecture.id,
+
+            title:
+              editLectureTitle.trim(),
+
+            description:
+              editLectureDescription.trim(),
+
+            pdfKey:
+              editLecturePdf.trim(),
+
+            pdfOriginalName:
+              editLecturePdf
+                .split("/")
+                .pop(),
+
+            updatedDate:
+              editLectureDate,
+          }),
+        }
+      );
+
+      if (response.status === 401) {
+        navigate("/admin/login", {
+          replace: true,
+        });
+        return;
+      }
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error();
+      }
+
+      setEditingLecture(null);
+
+      await loadLectures(
+        selectedField.id
+      );
+    } catch {
+      setError(
+        "حدث خطأ أثناء تعديل المحاضرة."
+      );
+    } finally {
+      setUpdatingLecture(false);
+    }
+  }
+
+  // ==========================================
+  // LECTURE PUBLISH
+  // ==========================================
+
+  async function toggleLecturePublish(
+    lecture
+  ) {
+    const newStatus =
+      Number(
+        lecture.is_published
+      ) !== 1;
+
+    try {
+      setError("");
+
+      const response = await fetch(
+        "/api/admin/lectures",
+        {
+          method: "PUT",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            id: lecture.id,
+            isPublished: newStatus,
+          }),
+        }
+      );
+
+      if (response.status === 401) {
+        navigate("/admin/login", {
+          replace: true,
+        });
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error();
+      }
+
+      await loadLectures(
+        selectedField.id
+      );
+    } catch {
+      setError(
+        "حدث خطأ أثناء تغيير حالة المحاضرة."
+      );
+    }
+  }
+
+  // ==========================================
+  // DELETE LECTURE
+  // ==========================================
+
+  async function deleteLecture(lecture) {
+    const confirmed = window.confirm(
+      `هل أنت متأكد من حذف محاضرة "${lecture.title}"؟`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const response = await fetch(
+        `/api/admin/lectures?id=${lecture.id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (response.status === 401) {
+        navigate("/admin/login", {
+          replace: true,
+        });
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error();
+      }
+
+      await loadLectures(
+        selectedField.id
+      );
+    } catch {
+      setError(
+        "حدث خطأ أثناء حذف المحاضرة."
+      );
+    }
+  }
+
+  // ==========================================
+  // AUTH LOADING
   // ==========================================
 
   if (checkingAuth) {
@@ -518,7 +867,7 @@ function AdminPage() {
   }
 
   // ==========================================
-  // PAGE
+  // UI
   // ==========================================
 
   return (
@@ -552,224 +901,442 @@ function AdminPage() {
         </button>
       </header>
 
-      {/* CONTENT */}
-
       <main className="admin-container">
-        {/* INTRO */}
 
-        <section className="admin-welcome">
-          <div>
-            <span>
-              إدارة المحتوى
-            </span>
+        {/* ==================================
+            FIELDS VIEW
+        ================================== */}
 
-            <h2>المجالات</h2>
+        {adminView === "fields" && (
+          <>
+            <section className="admin-welcome">
+              <div>
+                <span>
+                  إدارة المحتوى
+                </span>
 
-            <p>
-              اختر المرحلة لعرض المجالات
-              التابعة لها وإدارتها.
-            </p>
-          </div>
+                <h2>المجالات</h2>
 
-          <button
-            className="admin-add-button"
-            onClick={openAddField}
-            disabled={
-              loadingStages ||
-              stages.length === 0
-            }
-          >
-            + إضافة مجال
-          </button>
-        </section>
-
-        {/* STAGE SELECTOR */}
-
-        <section className="admin-stage-selector">
-          <label htmlFor="stage-select">
-            المرحلة
-          </label>
-
-          {loadingStages ? (
-            <p>
-              جاري تحميل المراحل...
-            </p>
-          ) : (
-            <select
-              id="stage-select"
-              value={selectedStage}
-              onChange={(event) =>
-                setSelectedStage(
-                  event.target.value
-                )
-              }
-            >
-              {stages.map((stage) => (
-                <option
-                  key={stage.id}
-                  value={stage.slug}
-                >
-                  {stage.name}
-                </option>
-              ))}
-            </select>
-          )}
-        </section>
-
-        {/* ERROR */}
-
-        {error && (
-          <div className="admin-error">
-            {error}
-          </div>
-        )}
-
-        {/* FIELDS */}
-
-        <section className="admin-fields-section">
-          <div className="admin-section-heading">
-            <div>
-              <span>
-                المحتوى الحالي
-              </span>
-
-              <h2>
-                المجالات
-
-                {!loadingFields && (
-                  <small>
-                    {" "}
-                    ({fields.length})
-                  </small>
-                )}
-              </h2>
-            </div>
-          </div>
-
-          {loadingFields ? (
-            <div className="admin-loading">
-              جاري تحميل المجالات...
-            </div>
-          ) : fields.length === 0 ? (
-            <div className="admin-empty">
-              <div className="admin-empty-icon">
-                ＋
+                <p>
+                  اختر المرحلة ثم قم بإدارة
+                  المجالات والمحاضرات.
+                </p>
               </div>
 
-              <h3>
-                لا توجد مجالات في هذه
+              <button
+                className="admin-add-button"
+                onClick={openAddField}
+              >
+                + إضافة مجال
+              </button>
+            </section>
+
+            <section className="admin-stage-selector">
+              <label>
                 المرحلة
-              </h3>
+              </label>
 
-              <p>
-                اضغط على إضافة مجال لإنشاء
-                أول مجال.
-              </p>
-            </div>
-          ) : (
-            <div className="admin-fields-list">
-              {fields.map(
-                (field, index) => {
-                  const isPublished =
-                    Number(
-                      field.is_published
-                    ) === 1;
-
-                  return (
-                    <article
-                      className="admin-field-card"
-                      key={field.id}
-                    >
-                      {/* ORDER */}
-
-                      <div className="admin-field-order">
-                        {String(
-                          index + 1
-                        ).padStart(
-                          2,
-                          "0"
-                        )}
-                      </div>
-
-                      {/* INFORMATION */}
-
-                      <div className="admin-field-info">
-                        <span>
-                          {
-                            field.stage_name
-                          }
-                        </span>
-
-                        <h3>
-                          {field.name}
-                        </h3>
-
-                        <span
-                          className={
-                            isPublished
-                              ? "admin-status published"
-                              : "admin-status hidden"
-                          }
-                        >
-                          {isPublished
-                            ? "منشور"
-                            : "غير منشور"}
-                        </span>
-
-                        <p>
-                          {field.description ||
-                            "لا يوجد وصف لهذا المجال."}
-                        </p>
-                      </div>
-
-                      {/* ACTIONS */}
-
-                      <div className="admin-field-actions">
-                        <button
-                          onClick={() =>
-                            openEditField(
-                              field
-                            )
-                          }
-                        >
-                          تعديل
-                        </button>
-
-                        <button
-                          onClick={() =>
-                            toggleFieldPublish(
-                              field
-                            )
-                          }
-                        >
-                          {isPublished
-                            ? "إلغاء النشر"
-                            : "إعادة النشر"}
-                        </button>
-
-                        <button
-                          className="admin-delete-button"
-                          onClick={() =>
-                            deleteField(
-                              field
-                            )
-                          }
-                        >
-                          حذف
-                        </button>
-                      </div>
-                    </article>
-                  );
-                }
+              {loadingStages ? (
+                <p>
+                  جاري تحميل المراحل...
+                </p>
+              ) : (
+                <select
+                  value={
+                    selectedStage
+                  }
+                  onChange={(event) =>
+                    setSelectedStage(
+                      event.target.value
+                    )
+                  }
+                >
+                  {stages.map(
+                    (stage) => (
+                      <option
+                        key={
+                          stage.id
+                        }
+                        value={
+                          stage.slug
+                        }
+                      >
+                        {
+                          stage.name
+                        }
+                      </option>
+                    )
+                  )}
+                </select>
               )}
-            </div>
+            </section>
+
+            {error && (
+              <div className="admin-error">
+                {error}
+              </div>
+            )}
+
+            <section>
+              <div className="admin-section-heading">
+                <span>
+                  المحتوى الحالي
+                </span>
+
+                <h2>
+                  المجالات{" "}
+                  {!loadingFields && (
+                    <small>
+                      ({fields.length})
+                    </small>
+                  )}
+                </h2>
+              </div>
+
+              {loadingFields ? (
+                <div className="admin-loading">
+                  جاري تحميل المجالات...
+                </div>
+              ) : fields.length === 0 ? (
+                <div className="admin-empty">
+                  <div className="admin-empty-icon">
+                    ＋
+                  </div>
+
+                  <h3>
+                    لا توجد مجالات
+                  </h3>
+
+                  <p>
+                    أضف أول مجال لهذه
+                    المرحلة.
+                  </p>
+                </div>
+              ) : (
+                <div className="admin-fields-list">
+                  {fields.map(
+                    (field, index) => {
+                      const published =
+                        Number(
+                          field.is_published
+                        ) === 1;
+
+                      return (
+                        <article
+                          className="admin-field-card"
+                          key={field.id}
+                        >
+                          <div className="admin-field-order">
+                            {String(
+                              index + 1
+                            ).padStart(
+                              2,
+                              "0"
+                            )}
+                          </div>
+
+                          <div className="admin-field-info">
+                            <span>
+                              {
+                                field.stage_name
+                              }
+                            </span>
+
+                            <h3>
+                              {
+                                field.name
+                              }
+                            </h3>
+
+                            <span
+                              className={
+                                published
+                                  ? "admin-status published"
+                                  : "admin-status hidden"
+                              }
+                            >
+                              {published
+                                ? "منشور"
+                                : "غير منشور"}
+                            </span>
+
+                            <p>
+                              {field.description ||
+                                "لا يوجد وصف لهذا المجال."}
+                            </p>
+                          </div>
+
+                          <div className="admin-field-actions">
+
+                            <button
+                              className="admin-manage-button"
+                              onClick={() =>
+                                openLectures(
+                                  field
+                                )
+                              }
+                            >
+                              إدارة المحاضرات
+                            </button>
+
+                            <button
+                              onClick={() =>
+                                openEditField(
+                                  field
+                                )
+                              }
+                            >
+                              تعديل
+                            </button>
+
+                            <button
+                              onClick={() =>
+                                toggleFieldPublish(
+                                  field
+                                )
+                              }
+                            >
+                              {published
+                                ? "إلغاء النشر"
+                                : "إعادة النشر"}
+                            </button>
+
+                            <button
+                              className="admin-delete-button"
+                              onClick={() =>
+                                deleteField(
+                                  field
+                                )
+                              }
+                            >
+                              حذف
+                            </button>
+
+                          </div>
+                        </article>
+                      );
+                    }
+                  )}
+                </div>
+              )}
+            </section>
+          </>
+        )}
+
+        {/* ==================================
+            LECTURES VIEW
+        ================================== */}
+
+        {adminView === "lectures" &&
+          selectedField && (
+            <>
+              <button
+                className="admin-back-button"
+                onClick={backToFields}
+              >
+                ← العودة إلى المجالات
+              </button>
+
+              <section className="admin-welcome">
+                <div>
+                  <span>
+                    {
+                      selectedField.stage_name
+                    }
+                  </span>
+
+                  <h2>
+                    {
+                      selectedField.name
+                    }
+                  </h2>
+
+                  <p>
+                    إدارة المحاضرات التابعة
+                    لهذا المجال.
+                  </p>
+                </div>
+
+                <button
+                  className="admin-add-button"
+                  onClick={
+                    openAddLecture
+                  }
+                >
+                  + إضافة محاضرة
+                </button>
+              </section>
+
+              {error && (
+                <div className="admin-error">
+                  {error}
+                </div>
+              )}
+
+              <div className="admin-section-heading">
+                <span>
+                  المحتوى الحالي
+                </span>
+
+                <h2>
+                  المحاضرات{" "}
+                  {!loadingLectures && (
+                    <small>
+                      ({lectures.length})
+                    </small>
+                  )}
+                </h2>
+              </div>
+
+              {loadingLectures ? (
+                <div className="admin-loading">
+                  جاري تحميل المحاضرات...
+                </div>
+              ) : lectures.length ===
+                0 ? (
+                <div className="admin-empty">
+                  <div className="admin-empty-icon">
+                    ＋
+                  </div>
+
+                  <h3>
+                    لا توجد محاضرات
+                  </h3>
+
+                  <p>
+                    اضغط على إضافة محاضرة
+                    لإنشاء أول محاضرة في
+                    هذا المجال.
+                  </p>
+                </div>
+              ) : (
+                <div className="admin-fields-list">
+                  {lectures.map(
+                    (
+                      lecture,
+                      index
+                    ) => {
+                      const published =
+                        Number(
+                          lecture.is_published
+                        ) === 1;
+
+                      return (
+                        <article
+                          className="admin-field-card"
+                          key={
+                            lecture.id
+                          }
+                        >
+                          <div className="admin-field-order">
+                            {String(
+                              index + 1
+                            ).padStart(
+                              2,
+                              "0"
+                            )}
+                          </div>
+
+                          <div className="admin-field-info">
+                            <span>
+                              {
+                                selectedField.name
+                              }
+                            </span>
+
+                            <h3>
+                              {
+                                lecture.title
+                              }
+                            </h3>
+
+                            <span
+                              className={
+                                published
+                                  ? "admin-status published"
+                                  : "admin-status hidden"
+                              }
+                            >
+                              {published
+                                ? "منشور"
+                                : "غير منشور"}
+                            </span>
+
+                            <p>
+                              {lecture.description ||
+                                "لا يوجد وصف لهذه المحاضرة."}
+                            </p>
+
+                            {lecture.updated_date && (
+                              <p className="admin-meta">
+                                آخر تحديث:{" "}
+                                {
+                                  lecture.updated_date
+                                }
+                              </p>
+                            )}
+
+                            {lecture.pdf_key && (
+                              <a
+                                className="admin-pdf-link"
+                                href={
+                                  lecture.pdf_key
+                                }
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                معاينة ملف PDF
+                              </a>
+                            )}
+                          </div>
+
+                          <div className="admin-field-actions">
+                            <button
+                              onClick={() =>
+                                openEditLecture(
+                                  lecture
+                                )
+                              }
+                            >
+                              تعديل
+                            </button>
+
+                            <button
+                              onClick={() =>
+                                toggleLecturePublish(
+                                  lecture
+                                )
+                              }
+                            >
+                              {published
+                                ? "إلغاء النشر"
+                                : "إعادة النشر"}
+                            </button>
+
+                            <button
+                              className="admin-delete-button"
+                              onClick={() =>
+                                deleteLecture(
+                                  lecture
+                                )
+                              }
+                            >
+                              حذف
+                            </button>
+                          </div>
+                        </article>
+                      );
+                    }
+                  )}
+                </div>
+              )}
+            </>
           )}
-        </section>
       </main>
 
-      {/* =====================================
+      {/* ==================================
           ADD FIELD MODAL
-      ====================================== */}
+      ================================== */}
 
       {showAddField && (
         <div
@@ -800,9 +1367,6 @@ function AdminPage() {
                 onClick={
                   closeAddField
                 }
-                disabled={
-                  savingField
-                }
               >
                 ×
               </button>
@@ -813,8 +1377,6 @@ function AdminPage() {
                 handleAddField
               }
             >
-              {/* STAGE */}
-
               <div className="admin-form-group">
                 <label>
                   المرحلة
@@ -826,8 +1388,7 @@ function AdminPage() {
                   }
                   onChange={(event) =>
                     setSelectedStage(
-                      event.target
-                        .value
+                      event.target.value
                     )
                   }
                 >
@@ -850,32 +1411,24 @@ function AdminPage() {
                 </select>
               </div>
 
-              {/* NAME */}
-
               <div className="admin-form-group">
                 <label>
                   اسم المجال *
                 </label>
 
                 <input
-                  type="text"
                   value={
                     newFieldName
                   }
-                  onChange={(
-                    event
-                  ) =>
+                  onChange={(event) =>
                     setNewFieldName(
-                      event.target
-                        .value
+                      event.target.value
                     )
                   }
-                  placeholder="مثال: المجال الاجتماعي"
+                  placeholder="مثال: المجال الروحي"
                   required
                 />
               </div>
-
-              {/* DESCRIPTION */}
 
               <div className="admin-form-group">
                 <label>
@@ -886,20 +1439,14 @@ function AdminPage() {
                   value={
                     newFieldDescription
                   }
-                  onChange={(
-                    event
-                  ) =>
+                  onChange={(event) =>
                     setNewFieldDescription(
-                      event.target
-                        .value
+                      event.target.value
                     )
                   }
-                  placeholder="اكتب وصفًا مختصرًا للمجال..."
                   rows="4"
                 />
               </div>
-
-              {/* ACTIONS */}
 
               <div className="admin-modal-actions">
                 <button
@@ -907,9 +1454,6 @@ function AdminPage() {
                   className="admin-cancel-button"
                   onClick={
                     closeAddField
-                  }
-                  disabled={
-                    savingField
                   }
                 >
                   إلغاء
@@ -933,23 +1477,14 @@ function AdminPage() {
         </div>
       )}
 
-      {/* =====================================
+      {/* ==================================
           EDIT FIELD MODAL
-      ====================================== */}
+      ================================== */}
 
       {editingField && (
-        <div
-          className="admin-modal-overlay"
-          onMouseDown={
-            closeEditField
-          }
-        >
-          <div
-            className="admin-modal"
-            onMouseDown={(event) =>
-              event.stopPropagation()
-            }
-          >
+        <div className="admin-modal-overlay">
+          <div className="admin-modal">
+
             <div className="admin-modal-heading">
               <div>
                 <span>
@@ -962,12 +1497,8 @@ function AdminPage() {
               </div>
 
               <button
-                type="button"
                 onClick={
                   closeEditField
-                }
-                disabled={
-                  updatingField
                 }
               >
                 ×
@@ -979,31 +1510,23 @@ function AdminPage() {
                 handleEditField
               }
             >
-              {/* NAME */}
-
               <div className="admin-form-group">
                 <label>
                   اسم المجال *
                 </label>
 
                 <input
-                  type="text"
                   value={
                     editFieldName
                   }
-                  onChange={(
-                    event
-                  ) =>
+                  onChange={(event) =>
                     setEditFieldName(
-                      event.target
-                        .value
+                      event.target.value
                     )
                   }
                   required
                 />
               </div>
-
-              {/* DESCRIPTION */}
 
               <div className="admin-form-group">
                 <label>
@@ -1014,19 +1537,14 @@ function AdminPage() {
                   value={
                     editFieldDescription
                   }
-                  onChange={(
-                    event
-                  ) =>
+                  onChange={(event) =>
                     setEditFieldDescription(
-                      event.target
-                        .value
+                      event.target.value
                     )
                   }
                   rows="4"
                 />
               </div>
-
-              {/* ACTIONS */}
 
               <div className="admin-modal-actions">
                 <button
@@ -1035,8 +1553,155 @@ function AdminPage() {
                   onClick={
                     closeEditField
                   }
+                >
+                  إلغاء
+                </button>
+
+                <button
+                  className="admin-save-button"
                   disabled={
                     updatingField
+                  }
+                >
+                  {updatingField
+                    ? "جاري الحفظ..."
+                    : "حفظ التعديلات"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ==================================
+          ADD LECTURE MODAL
+      ================================== */}
+
+      {showAddLecture && (
+        <div
+          className="admin-modal-overlay"
+          onMouseDown={
+            closeAddLecture
+          }
+        >
+          <div
+            className="admin-modal"
+            onMouseDown={(event) =>
+              event.stopPropagation()
+            }
+          >
+            <div className="admin-modal-heading">
+              <div>
+                <span>
+                  {
+                    selectedField?.name
+                  }
+                </span>
+
+                <h2>
+                  إضافة محاضرة
+                </h2>
+              </div>
+
+              <button
+                type="button"
+                onClick={
+                  closeAddLecture
+                }
+              >
+                ×
+              </button>
+            </div>
+
+            <form
+              onSubmit={
+                handleAddLecture
+              }
+            >
+              <div className="admin-form-group">
+                <label>
+                  اسم المحاضرة *
+                </label>
+
+                <input
+                  value={
+                    newLectureTitle
+                  }
+                  onChange={(event) =>
+                    setNewLectureTitle(
+                      event.target.value
+                    )
+                  }
+                  placeholder="مثال: الصلاة"
+                  required
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label>
+                  وصف المحاضرة
+                </label>
+
+                <textarea
+                  value={
+                    newLectureDescription
+                  }
+                  onChange={(event) =>
+                    setNewLectureDescription(
+                      event.target.value
+                    )
+                  }
+                  rows="4"
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label>
+                  مسار ملف PDF
+                </label>
+
+                <input
+                  value={
+                    newLecturePdf
+                  }
+                  onChange={(event) =>
+                    setNewLecturePdf(
+                      event.target.value
+                    )
+                  }
+                  placeholder="/pdfs/sample-lecture.pdf"
+                />
+
+                <small>
+                  مؤقتًا نستخدم ملفات PDF
+                  الموجودة داخل الموقع.
+                </small>
+              </div>
+
+              <div className="admin-form-group">
+                <label>
+                  تاريخ التحديث
+                </label>
+
+                <input
+                  type="date"
+                  value={
+                    newLectureDate
+                  }
+                  onChange={(event) =>
+                    setNewLectureDate(
+                      event.target.value
+                    )
+                  }
+                />
+              </div>
+
+              <div className="admin-modal-actions">
+                <button
+                  type="button"
+                  className="admin-cancel-button"
+                  onClick={
+                    closeAddLecture
                   }
                 >
                   إلغاء
@@ -1046,11 +1711,142 @@ function AdminPage() {
                   type="submit"
                   className="admin-save-button"
                   disabled={
-                    updatingField ||
-                    !editFieldName.trim()
+                    savingLecture ||
+                    !newLectureTitle.trim()
                   }
                 >
-                  {updatingField
+                  {savingLecture
+                    ? "جاري الحفظ..."
+                    : "حفظ المحاضرة"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ==================================
+          EDIT LECTURE MODAL
+      ================================== */}
+
+      {editingLecture && (
+        <div className="admin-modal-overlay">
+          <div className="admin-modal">
+
+            <div className="admin-modal-heading">
+              <div>
+                <span>
+                  تعديل المحتوى
+                </span>
+
+                <h2>
+                  تعديل المحاضرة
+                </h2>
+              </div>
+
+              <button
+                onClick={
+                  closeEditLecture
+                }
+              >
+                ×
+              </button>
+            </div>
+
+            <form
+              onSubmit={
+                handleEditLecture
+              }
+            >
+              <div className="admin-form-group">
+                <label>
+                  اسم المحاضرة *
+                </label>
+
+                <input
+                  value={
+                    editLectureTitle
+                  }
+                  onChange={(event) =>
+                    setEditLectureTitle(
+                      event.target.value
+                    )
+                  }
+                  required
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label>
+                  وصف المحاضرة
+                </label>
+
+                <textarea
+                  value={
+                    editLectureDescription
+                  }
+                  onChange={(event) =>
+                    setEditLectureDescription(
+                      event.target.value
+                    )
+                  }
+                  rows="4"
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label>
+                  مسار ملف PDF
+                </label>
+
+                <input
+                  value={
+                    editLecturePdf
+                  }
+                  onChange={(event) =>
+                    setEditLecturePdf(
+                      event.target.value
+                    )
+                  }
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label>
+                  تاريخ التحديث
+                </label>
+
+                <input
+                  type="date"
+                  value={
+                    editLectureDate
+                  }
+                  onChange={(event) =>
+                    setEditLectureDate(
+                      event.target.value
+                    )
+                  }
+                />
+              </div>
+
+              <div className="admin-modal-actions">
+                <button
+                  type="button"
+                  className="admin-cancel-button"
+                  onClick={
+                    closeEditLecture
+                  }
+                >
+                  إلغاء
+                </button>
+
+                <button
+                  className="admin-save-button"
+                  disabled={
+                    updatingLecture
+                  }
+                >
+                  {updatingLecture
                     ? "جاري الحفظ..."
                     : "حفظ التعديلات"}
                 </button>
