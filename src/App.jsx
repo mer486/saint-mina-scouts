@@ -8,13 +8,13 @@ import StagePage from "./pages/StagePage.jsx";
 import CurriculumPage from "./pages/CurriculumPage.jsx";
 import FieldPage from "./pages/FieldPage.jsx";
 import LecturePage from "./pages/LecturePage.jsx";
-
+import AdminLoginPage from "./pages/AdminLoginPage";
 function App() {
   return (
     <Routes>
 
       <Route path="/admin" element={<AdminPage />} />
-      
+
       <Route
         path="/"
         element={<HomePage />}
@@ -39,6 +39,10 @@ function App() {
         path="/stage/:stageId/curriculum/:fieldId/lecture/:lectureId"
         element={<LecturePage />}
       />
+      <Route
+  path="/admin/login"
+  element={<AdminLoginPage />}
+/>
     </Routes>
   );
 }

@@ -3583,3 +3583,117 @@
     width: 100%;
   }
 }
+
+/* ==============================
+   ADMIN LOGIN
+============================== */
+
+.admin-login-page {
+  min-height: 100vh;
+  padding: 30px;
+  display: grid;
+  place-items: center;
+  background: #f7f2e5;
+  font-family: "Tajawal", sans-serif;
+}
+
+.admin-login-card {
+  width: min(460px, 100%);
+  padding: 45px;
+  border: 1px solid rgba(64, 95, 60, 0.12);
+  border-radius: 26px;
+  background: #fffdf8;
+  box-shadow: 0 20px 60px rgba(48, 70, 47, 0.08);
+}
+
+.admin-login-label {
+  color: #927b4f;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.admin-login-card h1 {
+  margin: 8px 0;
+  color: #30462f;
+  font-family: "Alexandria", sans-serif;
+  font-size: 34px;
+}
+
+.admin-login-card > p {
+  margin: 0 0 30px;
+  color: #77736a;
+}
+
+.admin-login-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.admin-login-card label {
+  color: #30462f;
+  font-weight: 700;
+}
+
+.admin-login-card input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px 16px;
+  border: 1px solid rgba(64, 95, 60, 0.2);
+  border-radius: 12px;
+  outline: none;
+  background: white;
+  color: #30462f;
+  font-family: inherit;
+  font-size: 16px;
+}
+
+.admin-login-card input:focus {
+  border-color: #405f3c;
+}
+
+.admin-login-card form button {
+  margin-top: 10px;
+  padding: 14px;
+  border: 0;
+  border-radius: 12px;
+  background: #405f3c;
+  color: white;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-login-card form button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.admin-login-error {
+  padding: 11px 14px;
+  margin-top: 5px;
+  border-radius: 10px;
+  background: #fff0ed;
+  color: #9b3d35;
+  font-size: 14px;
+}
+
+.admin-login-back {
+  width: 100%;
+  margin-top: 12px;
+  padding: 11px;
+  border: 0;
+  background: transparent;
+  color: #77736a;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.admin-login-loading {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: #f7f2e5;
+  color: #30462f;
+  font-family: "Tajawal", sans-serif;
+}
