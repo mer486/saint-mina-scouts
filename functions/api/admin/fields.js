@@ -21,9 +21,9 @@ async function createSignature(secret) {
 }
 
 function getCookie(request, name) {
-  const cookieHeader = request.headers.get("Cookie") || "";
+  const header = request.headers.get("Cookie") || "";
 
-  for (const cookie of cookieHeader.split(";")) {
+  for (const cookie of header.split(";")) {
     const [key, ...value] = cookie.trim().split("=");
 
     if (key === name) {
@@ -40,9 +40,7 @@ async function isAdmin(context) {
     "saint_mina_admin"
   );
 
-  if (!token) {
-    return false;
-  }
+  if (!token) return false;
 
   const expected = await createSignature(
     context.env.ADMIN_SESSION_SECRET
@@ -51,18 +49,82 @@ async function isAdmin(context) {
   return token === expected;
 }
 
-export async function onRequestPost(context) {
+function unauthorized() {
+  return Response.json(
+    {
+      success: false,
+      error: "Unauthorized",
+    },
+    { status: 401 }
+  );
+}
+
+/* ========================================
+   GET ALL FIELDS FOR ADMIN
+======================================== */
+
+export async function onRequestGet(context) {
+  if (!(await isAdmin(context))) {
+    return unauthorized();
+  }
+
   try {
-    if (!(await isAdmin(context))) {
+    const url = new URL(context.request.url);
+    const stageSlug = url.searchParams.get("stage");
+
+    if (!stageSlug) {
       return Response.json(
         {
           success: false,
-          error: "Unauthorized",
+          error: "Stage is required",
         },
-        { status: 401 }
+        { status: 400 }
       );
     }
 
+    const { results } = await context.env.DB
+      .prepare(`
+        SELECT
+          fields.id,
+          fields.slug,
+          fields.name,
+          fields.description,
+          fields.icon,
+          fields.sort_order,
+          fields.is_published,
+          stages.slug AS stage_slug,
+          stages.name AS stage_name
+        FROM fields
+        INNER JOIN stages
+          ON stages.id = fields.stage_id
+        WHERE stages.slug = ?
+        ORDER BY fields.sort_order ASC
+      `)
+      .bind(stageSlug)
+      .all();
+
+    return Response.json(results);
+  } catch (error) {
+    return Response.json(
+      {
+        success: false,
+        error: "Failed to load fields",
+      },
+      { status: 500 }
+    );
+  }
+}
+
+/* ========================================
+   CREATE FIELD
+======================================== */
+
+export async function onRequestPost(context) {
+  if (!(await isAdmin(context))) {
+    return unauthorized();
+  }
+
+  try {
     const body = await context.request.json();
 
     const stageSlug = body.stageSlug?.trim();
@@ -73,7 +135,7 @@ export async function onRequestPost(context) {
       return Response.json(
         {
           success: false,
-          error: "Stage and field name are required",
+          error: "Required data missing",
         },
         { status: 400 }
       );
@@ -99,7 +161,7 @@ export async function onRequestPost(context) {
       );
     }
 
-    const lastField = await context.env.DB
+    const last = await context.env.DB
       .prepare(`
         SELECT MAX(sort_order) AS max_order
         FROM fields
@@ -109,7 +171,7 @@ export async function onRequestPost(context) {
       .first();
 
     const nextOrder =
-      Number(lastField?.max_order || 0) + 1;
+      Number(last?.max_order || 0) + 1;
 
     const slug =
       "field-" +
@@ -151,7 +213,172 @@ export async function onRequestPost(context) {
       {
         success: false,
         error: "Failed to create field",
-        details: error.message,
+      },
+      { status: 500 }
+    );
+  }
+}
+
+/* ========================================
+   EDIT / PUBLISH FIELD
+======================================== */
+
+export async function onRequestPut(context) {
+  if (!(await isAdmin(context))) {
+    return unauthorized();
+  }
+
+  try {
+    const body = await context.request.json();
+
+    const id = Number(body.id);
+
+    if (!id) {
+      return Response.json(
+        {
+          success: false,
+          error: "Field ID required",
+        },
+        { status: 400 }
+      );
+    }
+
+    const existing = await context.env.DB
+      .prepare(`
+        SELECT *
+        FROM fields
+        WHERE id = ?
+      `)
+      .bind(id)
+      .first();
+
+    if (!existing) {
+      return Response.json(
+        {
+          success: false,
+          error: "Field not found",
+        },
+        { status: 404 }
+      );
+    }
+
+    const name =
+      body.name !== undefined
+        ? body.name.trim()
+        : existing.name;
+
+    const description =
+      body.description !== undefined
+        ? body.description.trim()
+        : existing.description;
+
+    const isPublished =
+      body.isPublished !== undefined
+        ? body.isPublished
+          ? 1
+          : 0
+        : existing.is_published;
+
+    if (!name) {
+      return Response.json(
+        {
+          success: false,
+          error: "Name is required",
+        },
+        { status: 400 }
+      );
+    }
+
+    await context.env.DB
+      .prepare(`
+        UPDATE fields
+        SET
+          name = ?,
+          description = ?,
+          is_published = ?,
+          updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `)
+      .bind(
+        name,
+        description,
+        isPublished,
+        id
+      )
+      .run();
+
+    return Response.json({
+      success: true,
+    });
+  } catch (error) {
+    return Response.json(
+      {
+        success: false,
+        error: "Failed to update field",
+      },
+      { status: 500 }
+    );
+  }
+}
+
+/* ========================================
+   DELETE FIELD
+======================================== */
+
+export async function onRequestDelete(context) {
+  if (!(await isAdmin(context))) {
+    return unauthorized();
+  }
+
+  try {
+    const url = new URL(context.request.url);
+    const id = Number(url.searchParams.get("id"));
+
+    if (!id) {
+      return Response.json(
+        {
+          success: false,
+          error: "Field ID required",
+        },
+        { status: 400 }
+      );
+    }
+
+    const field = await context.env.DB
+      .prepare(`
+        SELECT id, name
+        FROM fields
+        WHERE id = ?
+      `)
+      .bind(id)
+      .first();
+
+    if (!field) {
+      return Response.json(
+        {
+          success: false,
+          error: "Field not found",
+        },
+        { status: 404 }
+      );
+    }
+
+    await context.env.DB
+      .prepare(`
+        DELETE FROM fields
+        WHERE id = ?
+      `)
+      .bind(id)
+      .run();
+
+    return Response.json({
+      success: true,
+    });
+  } catch (error) {
+    return Response.json(
+      {
+        success: false,
+        error: "Failed to delete field",
       },
       { status: 500 }
     );
