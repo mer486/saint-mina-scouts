@@ -43,6 +43,49 @@ function AdminPage() {
 
   const [error, setError] = useState("");
 
+    // ==========================================
+  // STAGE MANAGEMENT
+  // ==========================================
+
+  const [editingStage, setEditingStage] =
+    useState(null);
+
+  const [editStageName, setEditStageName] =
+    useState("");
+
+  const [
+    editStageDescription,
+    setEditStageDescription,
+  ] = useState("");
+
+  const [
+    editStageIntro,
+    setEditStageIntro,
+  ] = useState("");
+
+  const [
+    editStageImage,
+    setEditStageImage,
+  ] = useState("");
+
+  const [
+    editLeaderGuideTitle,
+    setEditLeaderGuideTitle,
+  ] = useState("");
+
+  const [
+    editLeaderGuidePdf,
+    setEditLeaderGuidePdf,
+  ] = useState("");
+
+  const [
+    editLeaderGuideDate,
+    setEditLeaderGuideDate,
+  ] = useState("");
+
+  const [updatingStage, setUpdatingStage] =
+    useState(false);
+
   // ==========================================
   // ADD FIELD
   // ==========================================
@@ -178,8 +221,8 @@ function AdminPage() {
         setError("");
 
         const response = await fetch(
-          "/api/stages"
-        );
+  "/api/admin/stages"
+);
 
         if (!response.ok) {
           throw new Error();
@@ -212,6 +255,199 @@ function AdminPage() {
 
     loadStages();
   }, [checkingAuth]);
+
+    // ==========================================
+  // EDIT STAGE
+  // ==========================================
+
+  function openEditStage(stage) {
+    setEditingStage(stage);
+
+    setEditStageName(
+      stage.name || ""
+    );
+
+    setEditStageDescription(
+      stage.description || ""
+    );
+
+    setEditStageIntro(
+      stage.intro || ""
+    );
+
+    setEditStageImage(
+      stage.image_url || ""
+    );
+
+    setEditLeaderGuideTitle(
+      stage.leader_guide_title ||
+        "دليل القائد"
+    );
+
+    setEditLeaderGuidePdf(
+      stage.leader_guide_pdf_key || ""
+    );
+
+    setEditLeaderGuideDate(
+      stage.leader_guide_updated_at || ""
+    );
+  }
+
+  function closeEditStage() {
+    if (updatingStage) return;
+
+    setEditingStage(null);
+  }
+
+  async function handleEditStage(event) {
+    event.preventDefault();
+
+    if (
+      !editingStage ||
+      !editStageName.trim()
+    ) {
+      return;
+    }
+
+    try {
+      setUpdatingStage(true);
+      setError("");
+
+      const response = await fetch(
+        "/api/admin/stages",
+        {
+          method: "PUT",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            id: editingStage.id,
+
+            name:
+              editStageName.trim(),
+
+            description:
+              editStageDescription.trim(),
+
+            intro:
+              editStageIntro.trim(),
+
+            imageUrl:
+              editStageImage.trim(),
+
+            leaderGuideTitle:
+              editLeaderGuideTitle.trim(),
+
+            leaderGuidePdfKey:
+              editLeaderGuidePdf.trim(),
+
+            leaderGuideUpdatedAt:
+              editLeaderGuideDate,
+          }),
+        }
+      );
+
+      if (response.status === 401) {
+        navigate("/admin/login", {
+          replace: true,
+        });
+
+        return;
+      }
+
+      const data =
+        await response.json();
+
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+        throw new Error();
+      }
+
+      setEditingStage(null);
+
+      // Refresh admin stages
+      const stagesResponse =
+        await fetch(
+          "/api/admin/stages"
+        );
+
+      if (!stagesResponse.ok) {
+        throw new Error();
+      }
+
+      const stagesData =
+        await stagesResponse.json();
+
+      setStages(stagesData);
+    } catch {
+      setError(
+        "حدث خطأ أثناء تعديل بيانات المرحلة."
+      );
+    } finally {
+      setUpdatingStage(false);
+    }
+  }
+
+  async function toggleStagePublish(stage) {
+    const newStatus =
+      Number(stage.is_published) !== 1;
+
+    try {
+      setError("");
+
+      const response = await fetch(
+        "/api/admin/stages",
+        {
+          method: "PUT",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            id: stage.id,
+            isPublished: newStatus,
+          }),
+        }
+      );
+
+      if (response.status === 401) {
+        navigate("/admin/login", {
+          replace: true,
+        });
+
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error();
+      }
+
+      const stagesResponse =
+        await fetch(
+          "/api/admin/stages"
+        );
+
+      if (!stagesResponse.ok) {
+        throw new Error();
+      }
+
+      const stagesData =
+        await stagesResponse.json();
+
+      setStages(stagesData);
+    } catch {
+      setError(
+        "حدث خطأ أثناء تغيير حالة المرحلة."
+      );
+    }
+  }
 
   // ==========================================
   // LOAD FIELDS
@@ -909,6 +1145,111 @@ function AdminPage() {
 
         {adminView === "fields" && (
           <>
+<section className="admin-stages-management">
+
+  <div className="admin-section-heading">
+    <span>
+      إعدادات المراحل
+    </span>
+
+    <h2>
+      إدارة المراحل
+    </h2>
+
+    <p>
+      تعديل نبذة المرحلة ودليل القائد
+      وحالة النشر.
+    </p>
+  </div>
+
+  {loadingStages ? (
+    <div className="admin-loading">
+      جاري تحميل المراحل...
+    </div>
+  ) : (
+    <div className="admin-stage-cards">
+
+      {stages.map((stage) => {
+        const published =
+          Number(
+            stage.is_published
+          ) === 1;
+
+        return (
+          <article
+            className="admin-stage-card"
+            key={stage.id}
+          >
+            <div className="admin-stage-card-info">
+
+              <span>
+                المرحلة
+              </span>
+
+              <h3>
+                {stage.name}
+              </h3>
+
+              <span
+                className={
+                  published
+                    ? "admin-status published"
+                    : "admin-status hidden"
+                }
+              >
+                {published
+                  ? "منشورة"
+                  : "غير منشورة"}
+              </span>
+
+              <p>
+                {stage.intro
+                  ? "تم إضافة نبذة المرحلة."
+                  : "لم تتم إضافة نبذة المرحلة بعد."}
+              </p>
+
+              <p className="admin-meta">
+                {stage.leader_guide_pdf_key
+                  ? "دليل القائد متاح"
+                  : "دليل القائد غير مضاف"}
+              </p>
+
+            </div>
+
+            <div className="admin-field-actions">
+
+              <button
+                className="admin-manage-button"
+                onClick={() =>
+                  openEditStage(stage)
+                }
+              >
+                تعديل بيانات المرحلة
+              </button>
+
+              <button
+                onClick={() =>
+                  toggleStagePublish(
+                    stage
+                  )
+                }
+              >
+                {published
+                  ? "إلغاء النشر"
+                  : "إعادة النشر"}
+              </button>
+
+            </div>
+          </article>
+        );
+      })}
+
+    </div>
+
+  )}
+
+</section>
+
             <section className="admin-welcome">
               <div>
                 <span>
@@ -1333,7 +1674,246 @@ function AdminPage() {
             </>
           )}
       </main>
+      {/* ==================================
+          EDIT STAGE MODAL
+      ================================== */}
 
+      {editingStage && (
+        <div
+          className="admin-modal-overlay"
+          onMouseDown={
+            closeEditStage
+          }
+        >
+          <div
+            className="admin-modal admin-stage-modal"
+            onMouseDown={(event) =>
+              event.stopPropagation()
+            }
+          >
+
+            <div className="admin-modal-heading">
+
+              <div>
+                <span>
+                  إدارة المرحلة
+                </span>
+
+                <h2>
+                  {editingStage.name}
+                </h2>
+              </div>
+
+              <button
+                type="button"
+                onClick={
+                  closeEditStage
+                }
+              >
+                ×
+              </button>
+
+            </div>
+
+            <form
+              onSubmit={
+                handleEditStage
+              }
+            >
+
+              <div className="admin-form-group">
+
+                <label>
+                  اسم المرحلة *
+                </label>
+
+                <input
+                  value={
+                    editStageName
+                  }
+                  onChange={(event) =>
+                    setEditStageName(
+                      event.target.value
+                    )
+                  }
+                  required
+                />
+
+              </div>
+
+              <div className="admin-form-group">
+
+                <label>
+                  الوصف المختصر
+                </label>
+
+                <textarea
+                  value={
+                    editStageDescription
+                  }
+                  onChange={(event) =>
+                    setEditStageDescription(
+                      event.target.value
+                    )
+                  }
+                  rows="3"
+                  placeholder="وصف مختصر يظهر مع اسم المرحلة"
+                />
+
+              </div>
+
+              <div className="admin-form-group">
+
+                <label>
+                  نبذة عن المرحلة
+                </label>
+
+                <textarea
+                  value={
+                    editStageIntro
+                  }
+                  onChange={(event) =>
+                    setEditStageIntro(
+                      event.target.value
+                    )
+                  }
+                  rows="7"
+                  placeholder="اكتب هنا نبذة المرحلة..."
+                />
+
+              </div>
+
+              <div className="admin-form-group">
+
+                <label>
+                  مسار صورة المرحلة
+                </label>
+
+                <input
+                  value={
+                    editStageImage
+                  }
+                  onChange={(event) =>
+                    setEditStageImage(
+                      event.target.value
+                    )
+                  }
+                  placeholder="/images/baraem.jpg"
+                />
+
+                <small>
+                  مؤقتًا نستخدم صورة موجودة
+                  داخل ملفات الموقع.
+                </small>
+
+              </div>
+
+              <div className="admin-stage-form-divider">
+
+                <span>
+                  دليل القائد
+                </span>
+
+              </div>
+
+              <div className="admin-form-group">
+
+                <label>
+                  عنوان دليل القائد
+                </label>
+
+                <input
+                  value={
+                    editLeaderGuideTitle
+                  }
+                  onChange={(event) =>
+                    setEditLeaderGuideTitle(
+                      event.target.value
+                    )
+                  }
+                  placeholder="دليل القائد"
+                />
+
+              </div>
+
+              <div className="admin-form-group">
+
+                <label>
+                  مسار ملف دليل القائد PDF
+                </label>
+
+                <input
+                  value={
+                    editLeaderGuidePdf
+                  }
+                  onChange={(event) =>
+                    setEditLeaderGuidePdf(
+                      event.target.value
+                    )
+                  }
+                  placeholder="/pdfs/leader-guide.pdf"
+                />
+
+                <small>
+                  رفع الملفات من لوحة التحكم
+                  سنضيفه في مرحلة التخزين.
+                  حاليًا يتم استخدام مسار PDF.
+                </small>
+
+              </div>
+
+              <div className="admin-form-group">
+
+                <label>
+                  تاريخ تحديث الدليل
+                </label>
+
+                <input
+                  type="date"
+                  value={
+                    editLeaderGuideDate
+                  }
+                  onChange={(event) =>
+                    setEditLeaderGuideDate(
+                      event.target.value
+                    )
+                  }
+                />
+
+              </div>
+
+              <div className="admin-modal-actions">
+
+                <button
+                  type="button"
+                  className="admin-cancel-button"
+                  onClick={
+                    closeEditStage
+                  }
+                >
+                  إلغاء
+                </button>
+
+                <button
+                  type="submit"
+                  className="admin-save-button"
+                  disabled={
+                    updatingStage ||
+                    !editStageName.trim()
+                  }
+                >
+                  {updatingStage
+                    ? "جاري الحفظ..."
+                    : "حفظ بيانات المرحلة"}
+                </button>
+
+              </div>
+
+            </form>
+
+          </div>
+        </div>
+      )}
       {/* ==================================
           ADD FIELD MODAL
       ================================== */}
