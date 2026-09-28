@@ -23,7 +23,22 @@ export async function onRequestGet(context) {
         `)
         .all();
 
-    return Response.json(results);
+    const normalizedResults = results.map(
+      (stage) => ({
+        ...stage,
+
+        leader_guide_pdf_key:
+          stage.leader_guide_pdf_key?.startsWith(
+            "gdrive:"
+          )
+            ? `/api/pdf/${encodeURIComponent(
+                stage.leader_guide_pdf_key.slice(7)
+              )}`
+            : stage.leader_guide_pdf_key,
+      })
+    );
+
+    return Response.json(normalizedResults);
   } catch (error) {
     return Response.json(
       {

@@ -140,6 +140,9 @@ function AdminPage() {
   const [newLecturePdf, setNewLecturePdf] =
     useState("");
 
+  const [newLecturePdfFile, setNewLecturePdfFile] =
+    useState(null);
+
   const [newLectureDate, setNewLectureDate] =
     useState("");
 
@@ -167,6 +170,9 @@ function AdminPage() {
     editLecturePdf,
     setEditLecturePdf,
   ] = useState("");
+
+  const [editLecturePdfFile, setEditLecturePdfFile] =
+    useState(null);
 
   const [
     editLectureDate,
@@ -790,6 +796,43 @@ function AdminPage() {
   }
 
   // ==========================================
+  // PDF HELPERS
+  // ==========================================
+
+  function getPdfUrl(pdfKey) {
+    if (!pdfKey) return "";
+
+    if (pdfKey.startsWith("gdrive:")) {
+      return `/api/pdf/${encodeURIComponent(pdfKey.slice(7))}`;
+    }
+
+    return pdfKey;
+  }
+
+  async function uploadPdf(file) {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch("/api/admin/google/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (response.status === 401) {
+      navigate("/admin/login", { replace: true });
+      throw new Error("Unauthorized");
+    }
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success || !data.pdfKey) {
+      throw new Error(data.details || data.error || "PDF upload failed");
+    }
+
+    return data;
+  }
+
+  // ==========================================
   // ADD LECTURE
   // ==========================================
 
@@ -797,9 +840,8 @@ function AdminPage() {
     setNewLectureTitle("");
     setNewLectureDescription("");
 
-    setNewLecturePdf(
-      "/pdfs/sample-lecture.pdf"
-    );
+    setNewLecturePdf("");
+    setNewLecturePdfFile(null);
 
     setNewLectureDate(
       new Date()
@@ -821,7 +863,8 @@ function AdminPage() {
 
     if (
       !selectedField ||
-      !newLectureTitle.trim()
+      !newLectureTitle.trim() ||
+      !newLecturePdfFile
     ) {
       return;
     }
@@ -829,6 +872,8 @@ function AdminPage() {
     try {
       setSavingLecture(true);
       setError("");
+
+      const uploadedPdf = await uploadPdf(newLecturePdfFile);
 
       const response = await fetch(
         "/api/admin/lectures",
@@ -849,13 +894,10 @@ function AdminPage() {
             description:
               newLectureDescription.trim(),
 
-            pdfKey:
-              newLecturePdf.trim(),
+            pdfKey: uploadedPdf.pdfKey,
 
             pdfOriginalName:
-              newLecturePdf
-                .split("/")
-                .pop(),
+              uploadedPdf.fileName || newLecturePdfFile.name,
 
             updatedDate:
               newLectureDate,
@@ -877,6 +919,8 @@ function AdminPage() {
       }
 
       setShowAddLecture(false);
+      setNewLecturePdf("");
+      setNewLecturePdfFile(null);
 
       await loadLectures(
         selectedField.id
@@ -908,6 +952,7 @@ function AdminPage() {
     setEditLecturePdf(
       lecture.pdf_key || ""
     );
+    setEditLecturePdfFile(null);
 
     setEditLectureDate(
       lecture.updated_date || ""
@@ -934,6 +979,15 @@ function AdminPage() {
       setUpdatingLecture(true);
       setError("");
 
+      let pdfKey = editLecturePdf.trim();
+      let pdfOriginalName = editingLecture.pdf_original_name || "";
+
+      if (editLecturePdfFile) {
+        const uploadedPdf = await uploadPdf(editLecturePdfFile);
+        pdfKey = uploadedPdf.pdfKey;
+        pdfOriginalName = uploadedPdf.fileName || editLecturePdfFile.name;
+      }
+
       const response = await fetch(
         "/api/admin/lectures",
         {
@@ -953,13 +1007,9 @@ function AdminPage() {
             description:
               editLectureDescription.trim(),
 
-            pdfKey:
-              editLecturePdf.trim(),
+            pdfKey,
 
-            pdfOriginalName:
-              editLecturePdf
-                .split("/")
-                .pop(),
+            pdfOriginalName,
 
             updatedDate:
               editLectureDate,
@@ -1621,7 +1671,7 @@ function AdminPage() {
                               <a
                                 className="admin-pdf-link"
                                 href={
-                                  lecture.pdf_key
+                                  getPdfUrl(lecture.pdf_key)
                                 }
                                 target="_blank"
                                 rel="noreferrer"
@@ -2237,24 +2287,22 @@ function AdminPage() {
 
               <div className="admin-form-group">
                 <label>
-                  مسار ملف PDF
+                  ملف المحاضرة PDF *
                 </label>
 
                 <input
-                  value={
-                    newLecturePdf
-                  }
-                  onChange={(event) =>
-                    setNewLecturePdf(
-                      event.target.value
-                    )
-                  }
-                  placeholder="/pdfs/sample-lecture.pdf"
+                  type="file"
+                  accept="application/pdf,.pdf"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0] || null;
+                    setNewLecturePdfFile(file);
+                    setNewLecturePdf(file ? file.name : "");
+                  }}
+                  required
                 />
 
                 <small>
-                  مؤقتًا نستخدم ملفات PDF
-                  الموجودة داخل الموقع.
+                  سيتم رفع الملف إلى التخزين الخاص تلقائيًا عند حفظ المحاضرة.
                 </small>
               </div>
 
@@ -2292,7 +2340,8 @@ function AdminPage() {
                   className="admin-save-button"
                   disabled={
                     savingLecture ||
-                    !newLectureTitle.trim()
+                    !newLectureTitle.trim() ||
+                    !newLecturePdfFile
                   }
                 >
                   {savingLecture
@@ -2376,19 +2425,33 @@ function AdminPage() {
 
               <div className="admin-form-group">
                 <label>
-                  مسار ملف PDF
+                  استبدال ملف PDF
                 </label>
 
+                {editLecturePdf && (
+                  <a
+                    className="admin-pdf-link"
+                    href={getPdfUrl(editLecturePdf)}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    معاينة الملف الحالي
+                  </a>
+                )}
+
                 <input
-                  value={
-                    editLecturePdf
-                  }
+                  type="file"
+                  accept="application/pdf,.pdf"
                   onChange={(event) =>
-                    setEditLecturePdf(
-                      event.target.value
+                    setEditLecturePdfFile(
+                      event.target.files?.[0] || null
                     )
                   }
                 />
+
+                <small>
+                  اتركه بدون اختيار ملف إذا كنت تريد الاحتفاظ بالـ PDF الحالي.
+                </small>
               </div>
 
               <div className="admin-form-group">

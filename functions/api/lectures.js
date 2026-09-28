@@ -55,13 +55,23 @@ export async function onRequestGet(context) {
 
           ORDER BY lectures.sort_order ASC
         `)
-        .bind(
-          stageSlug,
-          fieldSlug
-        )
+        .bind(stageSlug, fieldSlug)
         .all();
 
-    return Response.json(results);
+    const normalizedResults = results.map(
+      (lecture) => ({
+        ...lecture,
+
+        pdf_key:
+          lecture.pdf_key?.startsWith("gdrive:")
+            ? `/api/pdf/${encodeURIComponent(
+                lecture.pdf_key.slice(7)
+              )}`
+            : lecture.pdf_key,
+      })
+    );
+
+    return Response.json(normalizedResults);
   } catch (error) {
     return Response.json(
       {
