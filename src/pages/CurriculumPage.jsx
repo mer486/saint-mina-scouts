@@ -1,13 +1,18 @@
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
+
 import {
   useNavigate,
   useParams,
 } from "react-router-dom";
 
-function CurriculumPage() {
-  const navigate = useNavigate();
+import logo from "../assets/saint-mina-logo.jpg";
 
+function CurriculumPage() {
   const { stageId } = useParams();
+  const navigate = useNavigate();
 
   const [stage, setStage] =
     useState(null);
@@ -15,15 +20,14 @@ function CurriculumPage() {
   const [fields, setFields] =
     useState([]);
 
+  const [lectureCounts, setLectureCounts] =
+    useState({});
+
   const [loading, setLoading] =
     useState(true);
 
   const [error, setError] =
     useState("");
-
-  // ==========================================
-  // LOAD STAGE + FIELDS FROM D1
-  // ==========================================
 
   useEffect(() => {
     async function loadCurriculum() {
@@ -31,7 +35,10 @@ function CurriculumPage() {
         setLoading(true);
         setError("");
 
-        // Load stages
+        // ==============================
+        // LOAD STAGE
+        // ==============================
+
         const stagesResponse =
           await fetch("/api/stages");
 
@@ -41,18 +48,18 @@ function CurriculumPage() {
           );
         }
 
-        const stagesData =
+        const stages =
           await stagesResponse.json();
 
         const currentStage =
-          stagesData.find(
+          stages.find(
             (item) =>
               item.slug === stageId
           );
 
         if (!currentStage) {
           setError(
-            "لم يتم العثور على المرحلة."
+            "المرحلة غير موجودة"
           );
 
           return;
@@ -60,7 +67,10 @@ function CurriculumPage() {
 
         setStage(currentStage);
 
-        // Load fields
+        // ==============================
+        // LOAD FIELDS
+        // ==============================
+
         const fieldsResponse =
           await fetch(
             `/api/fields?stage=${encodeURIComponent(
@@ -78,9 +88,59 @@ function CurriculumPage() {
           await fieldsResponse.json();
 
         setFields(fieldsData);
+
+        // ==============================
+        // LOAD LECTURE COUNTS
+        // ==============================
+
+        const countResults =
+          await Promise.all(
+            fieldsData.map(
+              async (field) => {
+                try {
+                  const response =
+                    await fetch(
+                      `/api/lectures?stage=${encodeURIComponent(
+                        stageId
+                      )}&field=${encodeURIComponent(
+                        field.slug
+                      )}`
+                    );
+
+                  if (!response.ok) {
+                    return [
+                      field.slug,
+                      0,
+                    ];
+                  }
+
+                  const lectures =
+                    await response.json();
+
+                  return [
+                    field.slug,
+                    lectures.length,
+                  ];
+                } catch {
+                  return [
+                    field.slug,
+                    0,
+                  ];
+                }
+              }
+            )
+          );
+
+        setLectureCounts(
+          Object.fromEntries(
+            countResults
+          )
+        );
       } catch (error) {
+        console.error(error);
+
         setError(
-          "حدث خطأ أثناء تحميل المناهج."
+          "حدث خطأ أثناء تحميل المناهج"
         );
       } finally {
         setLoading(false);
@@ -90,159 +150,280 @@ function CurriculumPage() {
     loadCurriculum();
   }, [stageId]);
 
-  // ==========================================
-  // LOADING
-  // ==========================================
-
   if (loading) {
     return (
-      <div
-        className="page-state"
-        dir="rtl"
-      >
-        <h2>
+      <div className="not-found-page">
+        <h1>
           جاري تحميل المناهج...
-        </h2>
+        </h1>
       </div>
     );
   }
 
-  // ==========================================
-  // ERROR
-  // ==========================================
-
   if (error || !stage) {
     return (
-      <div
-        className="page-state"
-        dir="rtl"
-      >
-        <h2>
+      <div className="not-found-page">
+
+        <h1>
           {error ||
-            "لم يتم العثور على المرحلة."}
-        </h2>
+            "المرحلة غير موجودة"}
+        </h1>
 
         <button
           onClick={() =>
             navigate("/")
           }
         >
-          العودة للرئيسية
+          العودة إلى الرئيسية
         </button>
+
       </div>
     );
   }
 
-  // ==========================================
-  // PAGE
-  // ==========================================
-
   return (
-    <div
-      className="curriculum-page"
-      dir="rtl"
-    >
-      {/* HEADER */}
+    <div className="website curriculum-page">
 
-      <section className="curriculum-hero">
-        <button
-          className="back-link"
-          onClick={() =>
-            navigate(
-              `/stage/${stageId}`
-            )
-          }
-        >
-          ← العودة إلى المرحلة
-        </button>
+      {/* ==============================
+          ORIGINAL NAVBAR
+      ============================== */}
 
-        <span className="section-label">
-          {stage.name}
-        </span>
+      <header className="navbar curriculum-navbar">
 
-        <h1>المناهج</h1>
+        <div className="navbar-container">
 
-        <p>
-          اختر المجال لعرض المحاضرات
-          والمحتوى التدريبي الخاص به.
-        </p>
-      </section>
+          <button
+            className="brand brand-button"
+            onClick={() =>
+              navigate("/")
+            }
+          >
+            <img
+              src={logo}
+              alt="شعار كشافة كنيسة مارمينا"
+              className="brand-logo"
+            />
 
-      {/* FIELDS */}
+            <div className="brand-text">
+              <h1>
+                كشافة كنيسة مارمينا
+              </h1>
 
-      <section className="curriculum-content">
-        <div className="section-heading">
-          <div>
-            <span>
+              <span>
+                Saint Mina Scouts
+              </span>
+            </div>
+          </button>
+
+          <nav className="nav-links stage-nav-links">
+
+            <button
+              onClick={() =>
+                navigate("/")
+              }
+            >
+              الرئيسية
+            </button>
+
+            <button
+              onClick={() =>
+                navigate(
+                  `/stage/${stage.slug}`
+                )
+              }
+            >
+              مرحلة {stage.name}
+            </button>
+
+          </nav>
+
+          <button
+            className="back-home-button"
+            onClick={() =>
+              navigate(
+                `/stage/${stage.slug}`
+              )
+            }
+          >
+            العودة للمرحلة
+          </button>
+
+        </div>
+
+      </header>
+
+      <main>
+
+        {/* ==============================
+            ORIGINAL HERO
+        ============================== */}
+
+        <section className="curriculum-hero">
+
+          <div className="curriculum-hero-overlay" />
+
+          <div className="curriculum-hero-content">
+
+            <div className="breadcrumb">
+
+              <button
+                onClick={() =>
+                  navigate("/")
+                }
+              >
+                الرئيسية
+              </button>
+
+              <span>←</span>
+
+              <button
+                onClick={() =>
+                  navigate(
+                    `/stage/${stage.slug}`
+                  )
+                }
+              >
+                {stage.name}
+              </button>
+
+              <span>←</span>
+
+              <strong>
+                المناهج
+              </strong>
+
+            </div>
+
+            <span className="curriculum-hero-label">
               المحتوى التدريبي
             </span>
 
             <h2>
-              المجالات
+              مناهج مرحلة {stage.name}
             </h2>
-          </div>
-
-          <p>
-            {fields.length} مجال
-          </p>
-        </div>
-
-        {fields.length === 0 ? (
-          <div className="empty-state">
-            <h3>
-              لا توجد مجالات متاحة حاليًا
-            </h3>
 
             <p>
-              سيتم إضافة المحتوى قريبًا.
+              اختر المجال الذي تريد استعراضه
+              للوصول إلى المحاضرات والمحتوى
+              التدريبي الخاص به.
             </p>
+
           </div>
-        ) : (
-          <div className="fields-grid">
-            {fields.map(
-              (field, index) => (
-                <article
-                  className="field-card"
-                  key={field.id}
-                  onClick={() =>
-                    navigate(
-                      `/stage/${stageId}/curriculum/${field.slug}`
-                    )
-                  }
-                >
-                  <div className="field-card-number">
-                    {String(
-                      index + 1
-                    ).padStart(
-                      2,
-                      "0"
-                    )}
-                  </div>
 
-                  <div className="field-card-content">
-                    <span>
-                      {stage.name}
-                    </span>
+        </section>
 
-                    <h3>
-                      {field.name}
-                    </h3>
+        {/* ==============================
+            ORIGINAL FIELDS DESIGN
+        ============================== */}
 
-                    <p>
-                      {field.description ||
-                        "عرض المحاضرات والمحتوى التدريبي الخاص بهذا المجال."}
-                    </p>
-                  </div>
+        <section className="fields-section">
 
-                  <div className="field-card-arrow">
-                    ←
-                  </div>
-                </article>
-              )
+          <div className="fields-container">
+
+            <div className="fields-heading">
+
+              <span>
+                المناهج
+              </span>
+
+              <h2>
+                المجالات
+              </h2>
+
+              <p>
+                اختر أحد المجالات لاستعراض
+                المحاضرات والموضوعات المتاحة
+                داخله.
+              </p>
+
+            </div>
+
+            {fields.length > 0 ? (
+
+              <div className="fields-grid">
+
+                {fields.map(
+                  (field) => (
+
+                    <article
+                      className="field-card"
+                      key={field.id}
+                    >
+
+                      <div className="field-icon">
+                        {field.icon ||
+                          "✦"}
+                      </div>
+
+                      <div className="field-content">
+
+                        <span className="field-count">
+                          {lectureCounts[
+                            field.slug
+                          ] ?? 0}{" "}
+                          محاضرات
+                        </span>
+
+                        <h3>
+                          {field.name}
+                        </h3>
+
+                        <p>
+                          {field.description ||
+                            "استعرض المحاضرات والمحتوى التدريبي الخاص بهذا المجال."}
+                        </p>
+
+                        <button
+                          className="field-button"
+                          onClick={() =>
+                            navigate(
+                              `/stage/${stage.slug}/curriculum/${field.slug}`
+                            )
+                          }
+                        >
+                          <span>
+                            استعرض المجال
+                          </span>
+
+                          <span>
+                            ←
+                          </span>
+                        </button>
+
+                      </div>
+
+                    </article>
+
+                  )
+                )}
+
+              </div>
+
+            ) : (
+
+              <div className="lectures-empty-state">
+
+                <span>✦</span>
+
+                <h3>
+                  لا توجد مجالات متاحة
+                </h3>
+
+                <p>
+                  سيتم إضافة محتوى هذه المرحلة
+                  قريبًا.
+                </p>
+
+              </div>
+
             )}
+
           </div>
-        )}
-      </section>
+
+        </section>
+
+      </main>
+
     </div>
   );
 }

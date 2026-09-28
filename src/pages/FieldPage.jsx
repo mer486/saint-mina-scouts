@@ -1,14 +1,24 @@
-import { useEffect, useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
 import {
   useNavigate,
   useParams,
 } from "react-router-dom";
 
-function FieldPage() {
-  const navigate = useNavigate();
+import logo from "../assets/saint-mina-logo.jpg";
 
+function FieldPage() {
   const { stageId, fieldId } =
     useParams();
+
+  const navigate = useNavigate();
+
+  const [searchTerm, setSearchTerm] =
+    useState("");
 
   const [stage, setStage] =
     useState(null);
@@ -19,61 +29,45 @@ function FieldPage() {
   const [lectures, setLectures] =
     useState([]);
 
-  const [searchTerm, setSearchTerm] =
-    useState("");
-
   const [loading, setLoading] =
     useState(true);
 
   const [error, setError] =
     useState("");
 
-  // ==========================================
-  // LOAD FIELD + LECTURES FROM D1
-  // ==========================================
-
   useEffect(() => {
-    async function loadFieldPage() {
+    async function loadField() {
       try {
         setLoading(true);
         setError("");
 
-        // --------------------------------------
-        // LOAD STAGE
-        // --------------------------------------
-
+        // Load stage
         const stagesResponse =
           await fetch("/api/stages");
 
         if (!stagesResponse.ok) {
-          throw new Error(
-            "Failed to load stages"
-          );
+          throw new Error();
         }
 
-        const stagesData =
+        const stages =
           await stagesResponse.json();
 
         const currentStage =
-          stagesData.find(
+          stages.find(
             (item) =>
               item.slug === stageId
           );
 
         if (!currentStage) {
           setError(
-            "لم يتم العثور على المرحلة."
+            "المرحلة غير موجودة"
           );
-
           return;
         }
 
         setStage(currentStage);
 
-        // --------------------------------------
-        // LOAD FIELDS
-        // --------------------------------------
-
+        // Load fields
         const fieldsResponse =
           await fetch(
             `/api/fields?stage=${encodeURIComponent(
@@ -82,34 +76,28 @@ function FieldPage() {
           );
 
         if (!fieldsResponse.ok) {
-          throw new Error(
-            "Failed to load fields"
-          );
+          throw new Error();
         }
 
-        const fieldsData =
+        const fields =
           await fieldsResponse.json();
 
         const currentField =
-          fieldsData.find(
+          fields.find(
             (item) =>
               item.slug === fieldId
           );
 
         if (!currentField) {
           setError(
-            "لم يتم العثور على المجال."
+            "المجال غير موجود"
           );
-
           return;
         }
 
         setField(currentField);
 
-        // --------------------------------------
-        // LOAD LECTURES
-        // --------------------------------------
-
+        // Load lectures
         const lecturesResponse =
           await fetch(
             `/api/lectures?stage=${encodeURIComponent(
@@ -120,9 +108,7 @@ function FieldPage() {
           );
 
         if (!lecturesResponse.ok) {
-          throw new Error(
-            "Failed to load lectures"
-          );
+          throw new Error();
         }
 
         const lecturesData =
@@ -130,70 +116,47 @@ function FieldPage() {
 
         setLectures(lecturesData);
       } catch (error) {
+        console.error(error);
+
         setError(
-          "حدث خطأ أثناء تحميل المحاضرات."
+          "حدث خطأ أثناء تحميل المحتوى"
         );
       } finally {
         setLoading(false);
       }
     }
 
-    loadFieldPage();
+    loadField();
   }, [stageId, fieldId]);
-
-  // ==========================================
-  // SEARCH
-  // ==========================================
 
   const filteredLectures =
     useMemo(() => {
-      const search =
+      const term =
         searchTerm
           .trim()
           .toLowerCase();
 
-      if (!search) {
+      if (!term) {
         return lectures;
       }
 
       return lectures.filter(
-        (lecture) => {
-          const title =
-            lecture.title
-              ?.toLowerCase() || "";
-
-          const description =
-            lecture.description
-              ?.toLowerCase() || "";
-
-          return (
-            title.includes(search) ||
-            description.includes(search)
-          );
-        }
+        (lecture) =>
+          lecture.title
+            .toLowerCase()
+            .includes(term)
       );
-    }, [lectures, searchTerm]);
-
-  // ==========================================
-  // LOADING
-  // ==========================================
+    }, [searchTerm, lectures]);
 
   if (loading) {
     return (
-      <div
-        className="page-state"
-        dir="rtl"
-      >
-        <h2>
+      <div className="not-found-page">
+        <h1>
           جاري تحميل المحاضرات...
-        </h2>
+        </h1>
       </div>
     );
   }
-
-  // ==========================================
-  // ERROR
-  // ==========================================
 
   if (
     error ||
@@ -201,184 +164,308 @@ function FieldPage() {
     !field
   ) {
     return (
-      <div
-        className="page-state"
-        dir="rtl"
-      >
-        <h2>
+      <div className="not-found-page">
+        <h1>
           {error ||
-            "لم يتم العثور على المحتوى."}
-        </h2>
+            "المحتوى غير موجود"}
+        </h1>
 
         <button
           onClick={() =>
-            navigate(
-              `/stage/${stageId}/curriculum`
-            )
+            navigate("/")
           }
         >
-          العودة إلى المناهج
+          العودة إلى الرئيسية
         </button>
       </div>
     );
   }
 
-  // ==========================================
-  // PAGE
-  // ==========================================
-
   return (
-    <div
-      className="field-page"
-      dir="rtl"
-    >
-      {/* HERO */}
+    <div className="website field-page">
 
-      <section className="field-hero">
-        <button
-          className="back-link"
-          onClick={() =>
-            navigate(
-              `/stage/${stageId}/curriculum`
-            )
-          }
-        >
-          ← العودة إلى المناهج
-        </button>
+      <header className="navbar field-navbar">
+        <div className="navbar-container">
 
-        <span className="section-label">
-          {stage.name}
-        </span>
+          <button
+            className="brand brand-button"
+            onClick={() =>
+              navigate("/")
+            }
+          >
+            <img
+              src={logo}
+              alt="شعار كشافة كنيسة مارمينا"
+              className="brand-logo"
+            />
 
-        <h1>
-          {field.name}
-        </h1>
+            <div className="brand-text">
+              <h1>
+                كشافة كنيسة مارمينا
+              </h1>
 
-        <p>
-          {field.description ||
-            "المحاضرات والمحتوى التدريبي الخاص بهذا المجال."}
-        </p>
-      </section>
+              <span>
+                Saint Mina Scouts
+              </span>
+            </div>
+          </button>
 
-      {/* CONTENT */}
+          <nav className="nav-links stage-nav-links">
 
-      <section className="field-content">
+            <button
+              onClick={() =>
+                navigate("/")
+              }
+            >
+              الرئيسية
+            </button>
 
-        {/* TITLE + SEARCH */}
+            <button
+              onClick={() =>
+                navigate(
+                  `/stage/${stage.slug}`
+                )
+              }
+            >
+              مرحلة {stage.name}
+            </button>
 
-        <div className="field-toolbar">
-          <div>
-            <span className="section-label">
-              المحتوى التدريبي
+            <button
+              onClick={() =>
+                navigate(
+                  `/stage/${stage.slug}/curriculum`
+                )
+              }
+            >
+              المناهج
+            </button>
+
+          </nav>
+
+          <button
+            className="back-home-button"
+            onClick={() =>
+              navigate(
+                `/stage/${stage.slug}/curriculum`
+              )
+            }
+          >
+            العودة للمجالات
+          </button>
+
+        </div>
+      </header>
+
+      <main>
+
+        <section className="field-hero">
+
+          <div className="field-hero-overlay" />
+
+          <div className="field-hero-content">
+
+            <div className="breadcrumb">
+
+              <button
+                onClick={() =>
+                  navigate("/")
+                }
+              >
+                الرئيسية
+              </button>
+
+              <span>←</span>
+
+              <button
+                onClick={() =>
+                  navigate(
+                    `/stage/${stage.slug}`
+                  )
+                }
+              >
+                {stage.name}
+              </button>
+
+              <span>←</span>
+
+              <button
+                onClick={() =>
+                  navigate(
+                    `/stage/${stage.slug}/curriculum`
+                  )
+                }
+              >
+                المناهج
+              </button>
+
+              <span>←</span>
+
+              <strong>
+                {field.name}
+              </strong>
+
+            </div>
+
+            <span className="field-hero-label">
+              مناهج مرحلة {stage.name}
             </span>
 
             <h2>
-              المحاضرات
+              {field.name}
             </h2>
 
             <p>
-              {lectures.length} محاضرة
+              {field.description ||
+                "المحتوى التدريبي الخاص بهذا المجال."}
             </p>
+
           </div>
 
-          <div className="lecture-search">
-            <input
-              type="search"
-              value={searchTerm}
-              onChange={(event) =>
-                setSearchTerm(
-                  event.target.value
-                )
-              }
-              placeholder="ابحث عن محاضرة..."
-              aria-label="البحث عن محاضرة"
-            />
-          </div>
-        </div>
+        </section>
 
-        {/* NO LECTURES */}
+        <section className="lectures-section">
 
-        {lectures.length === 0 ? (
-          <div className="empty-state">
-            <h3>
-              لا توجد محاضرات متاحة حاليًا
-            </h3>
+          <div className="lectures-container">
 
-            <p>
-              سيتم إضافة المحتوى قريبًا.
-            </p>
-          </div>
-        ) : filteredLectures.length ===
-          0 ? (
-          <div className="empty-state">
-            <h3>
-              لا توجد نتائج
-            </h3>
+            <div className="lectures-heading">
 
-            <p>
-              جرّب البحث بكلمة أخرى.
-            </p>
-          </div>
-        ) : (
-          /* LECTURES */
+              <span>
+                المحتوى التدريبي
+              </span>
 
-          <div className="lectures-list">
-            {filteredLectures.map(
-              (lecture, index) => (
-                <article
-                  className="lecture-card"
-                  key={lecture.id}
-                  onClick={() =>
-                    navigate(
-                      `/stage/${stageId}/curriculum/${fieldId}/lecture/${lecture.slug}`
-                    )
+              <h2>
+                المحاضرات
+              </h2>
+
+              <p>
+                اختر المحاضرة التي تريد عرضها
+                أو تحميل الملف الخاص بها.
+              </p>
+
+            </div>
+
+            <div className="lectures-search">
+
+              <span>⌕</span>
+
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(event) =>
+                  setSearchTerm(
+                    event.target.value
+                  )
+                }
+                placeholder="ابحث داخل محاضرات هذا المجال..."
+              />
+
+            </div>
+
+            <div className="lectures-list">
+
+              {filteredLectures.length >
+              0 ? (
+
+                filteredLectures.map(
+                  (lecture, index) => {
+
+                    const pdfUrl =
+                      lecture.pdf_key ||
+                      "";
+
+                    return (
+                      <article
+                        className="lecture-card"
+                        key={lecture.id}
+                      >
+
+                        <div className="lecture-number">
+                          {String(
+                            index + 1
+                          ).padStart(
+                            2,
+                            "0"
+                          )}
+                        </div>
+
+                        <div className="lecture-info">
+
+                          <span className="lecture-type">
+                            محاضرة
+                          </span>
+
+                          <h3>
+                            {lecture.title}
+                          </h3>
+
+                          <p>
+                            {lecture.updated_date
+                              ? `آخر تحديث: ${lecture.updated_date}`
+                              : "ملف تدريبي"}
+                          </p>
+
+                        </div>
+
+                        <div className="lecture-actions">
+
+                          <button
+                            className="lecture-view-button"
+                            onClick={() =>
+                              navigate(
+                                `/stage/${stage.slug}/curriculum/${field.slug}/lecture/${lecture.slug}`
+                              )
+                            }
+                          >
+                            عرض المحاضرة
+                          </button>
+
+                          {pdfUrl && (
+                            <a
+                              href={pdfUrl}
+                              download={`${lecture.title}.pdf`}
+                              className="lecture-download-button"
+                            >
+                              تحميل PDF
+                            </a>
+                          )}
+
+                        </div>
+
+                      </article>
+                    );
                   }
-                >
-                  <div className="lecture-number">
-                    {String(
-                      index + 1
-                    ).padStart(
-                      2,
-                      "0"
-                    )}
-                  </div>
+                )
 
-                  <div className="lecture-info">
-                    <span>
-                      {field.name}
-                    </span>
+              ) : (
 
-                    <h3>
-                      {lecture.title}
-                    </h3>
+                <div className="lectures-empty-state">
 
-                    {lecture.description && (
-                      <p>
-                        {
-                          lecture.description
-                        }
-                      </p>
-                    )}
+                  <span>⌕</span>
 
-                    {lecture.updated_date && (
-                      <small>
-                        آخر تحديث:{" "}
-                        {
-                          lecture.updated_date
-                        }
-                      </small>
-                    )}
-                  </div>
+                  <h3>
+                    {searchTerm.trim()
+                      ? "لا توجد محاضرات مطابقة"
+                      : "لا توجد محاضرات متاحة حاليًا"}
+                  </h3>
 
-                  <div className="lecture-arrow">
-                    ←
-                  </div>
-                </article>
-              )
-            )}
+                  <p>
+                    {searchTerm.trim()
+                      ? "جرّب البحث بكلمة أخرى."
+                      : "سيتم إضافة المحاضرات قريبًا."}
+                  </p>
+
+                </div>
+
+              )}
+
+            </div>
+
           </div>
-        )}
-      </section>
+
+        </section>
+
+      </main>
+
     </div>
   );
 }

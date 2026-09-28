@@ -4,9 +4,7 @@ import {
   useState,
 } from "react";
 
-import {
-  useNavigate,
-} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import logo from "../assets/saint-mina-logo.jpg";
 
@@ -22,25 +20,25 @@ function HomePage() {
   const [searchItems, setSearchItems] =
     useState([]);
 
-  const [loadingStages, setLoadingStages] =
+  const [loading, setLoading] =
     useState(true);
 
   const [error, setError] =
     useState("");
 
   // ==========================================
-  // LOAD ALL PUBLIC CONTENT FROM D1
+  // LOAD CONTENT FROM D1
   // ==========================================
 
   useEffect(() => {
     async function loadWebsiteContent() {
       try {
-        setLoadingStages(true);
+        setLoading(true);
         setError("");
 
-        // ------------------------------
+        // --------------------------------------
         // 1. Load stages
-        // ------------------------------
+        // --------------------------------------
 
         const stagesResponse =
           await fetch("/api/stages");
@@ -62,65 +60,61 @@ function HomePage() {
         stagesData.forEach((stage) => {
           allSearchItems.push({
             type: "stage",
-
             title: stage.name,
-
-            subtitle:
-              "مرحلة كشفية",
-
-            path:
-              `/stage/${stage.slug}`,
+            subtitle: "مرحلة كشفية",
+            path: `/stage/${stage.slug}`,
           });
         });
 
-        // ------------------------------
-        // 2. Load fields for every stage
-        // ------------------------------
+        // --------------------------------------
+        // 2. Load fields for each stage
+        // --------------------------------------
 
         const stageContent =
           await Promise.all(
             stagesData.map(
               async (stage) => {
-                const fieldsResponse =
-                  await fetch(
-                    `/api/fields?stage=${encodeURIComponent(
-                      stage.slug
-                    )}`
-                  );
+                try {
+                  const response =
+                    await fetch(
+                      `/api/fields?stage=${encodeURIComponent(
+                        stage.slug
+                      )}`
+                    );
 
-                if (!fieldsResponse.ok) {
+                  if (!response.ok) {
+                    return {
+                      stage,
+                      fields: [],
+                    };
+                  }
+
+                  const fields =
+                    await response.json();
+
+                  return {
+                    stage,
+                    fields,
+                  };
+                } catch {
                   return {
                     stage,
                     fields: [],
                   };
                 }
-
-                const fields =
-                  await fieldsResponse.json();
-
-                return {
-                  stage,
-                  fields,
-                };
               }
             )
           );
 
-        // ------------------------------
-        // 3. Add fields to search
-        // ------------------------------
-
+        // Add fields to search
         stageContent.forEach(
           ({ stage, fields }) => {
             fields.forEach((field) => {
               allSearchItems.push({
                 type: "field",
-
                 title: field.name,
-
                 subtitle:
                   `مرحلة ${stage.name}`,
-
                 path:
                   `/stage/${stage.slug}/curriculum/${field.slug}`,
               });
@@ -128,21 +122,19 @@ function HomePage() {
           }
         );
 
-        // ------------------------------
-        // 4. Load lectures
-        // ------------------------------
+        // --------------------------------------
+        // 3. Load lectures for search
+        // --------------------------------------
 
         const lectureRequests = [];
 
         stageContent.forEach(
           ({ stage, fields }) => {
             fields.forEach((field) => {
-              lectureRequests.push(
-                {
-                  stage,
-                  field,
-                }
-              );
+              lectureRequests.push({
+                stage,
+                field,
+              });
             });
           }
         );
@@ -154,38 +146,42 @@ function HomePage() {
                 stage,
                 field,
               }) => {
-                const response =
-                  await fetch(
-                    `/api/lectures?stage=${encodeURIComponent(
-                      stage.slug
-                    )}&field=${encodeURIComponent(
-                      field.slug
-                    )}`
-                  );
+                try {
+                  const response =
+                    await fetch(
+                      `/api/lectures?stage=${encodeURIComponent(
+                        stage.slug
+                      )}&field=${encodeURIComponent(
+                        field.slug
+                      )}`
+                    );
 
-                if (!response.ok) {
+                  if (!response.ok) {
+                    return {
+                      stage,
+                      field,
+                      lectures: [],
+                    };
+                  }
+
+                  const lectures =
+                    await response.json();
+
+                  return {
+                    stage,
+                    field,
+                    lectures,
+                  };
+                } catch {
                   return {
                     stage,
                     field,
                     lectures: [],
                   };
                 }
-
-                const lectures =
-                  await response.json();
-
-                return {
-                  stage,
-                  field,
-                  lectures,
-                };
               }
             )
           );
-
-        // ------------------------------
-        // 5. Add lectures to search
-        // ------------------------------
 
         lectureContent.forEach(
           ({
@@ -197,13 +193,10 @@ function HomePage() {
               (lecture) => {
                 allSearchItems.push({
                   type: "lecture",
-
                   title:
                     lecture.title,
-
                   subtitle:
                     `${stage.name} • ${field.name}`,
-
                   path:
                     `/stage/${stage.slug}/curriculum/${field.slug}/lecture/${lecture.slug}`,
                 });
@@ -222,7 +215,7 @@ function HomePage() {
           "حدث خطأ أثناء تحميل المحتوى."
         );
       } finally {
-        setLoadingStages(false);
+        setLoading(false);
       }
     }
 
@@ -256,10 +249,6 @@ function HomePage() {
       searchItems,
     ]);
 
-  // ==========================================
-  // SCROLL
-  // ==========================================
-
   const scrollToStages = () => {
     document
       .getElementById("stages")
@@ -268,15 +257,11 @@ function HomePage() {
       });
   };
 
-  // ==========================================
-  // UI
-  // ==========================================
-
   return (
     <div className="website">
 
       {/* ======================================
-          NAVBAR
+          ORIGINAL NAVBAR
       ====================================== */}
 
       <header className="navbar">
@@ -328,13 +313,13 @@ function HomePage() {
           <button
             className="search-icon-button"
             aria-label="بحث"
-            onClick={() => {
+            onClick={() =>
               document
                 .querySelector(
                   ".floating-search input"
                 )
-                ?.focus();
-            }}
+                ?.focus()
+            }
           >
             <span>⌕</span>
           </button>
@@ -346,7 +331,7 @@ function HomePage() {
       <main>
 
         {/* ======================================
-            HERO
+            ORIGINAL HERO
         ====================================== */}
 
         <section
@@ -354,7 +339,7 @@ function HomePage() {
           id="home"
         >
 
-          <div className="hero-overlay" />
+          <div className="hero-overlay"></div>
 
           <div className="hero-content">
 
@@ -377,11 +362,10 @@ function HomePage() {
 
             <button
               className="primary-button"
-              onClick={
-                scrollToStages
-              }
+              onClick={scrollToStages}
             >
               استعرض المناهج
+
               <span>←</span>
             </button>
 
@@ -394,7 +378,7 @@ function HomePage() {
         </section>
 
         {/* ======================================
-            SEARCH
+            ORIGINAL SEARCH
         ====================================== */}
 
         <section className="floating-search-wrapper">
@@ -469,9 +453,7 @@ function HomePage() {
                         </strong>
 
                         <span>
-                          {
-                            result.subtitle
-                          }
+                          {result.subtitle}
                         </span>
 
                       </div>
@@ -500,7 +482,7 @@ function HomePage() {
         </section>
 
         {/* ======================================
-            STAGES
+            ORIGINAL STAGES SECTION
         ====================================== */}
 
         <section
@@ -527,30 +509,18 @@ function HomePage() {
           </div>
 
           {error && (
-
             <div className="admin-error">
               {error}
             </div>
-
           )}
 
-          {loadingStages ? (
+          {loading ? (
 
             <div className="admin-loading">
               جاري تحميل المراحل...
             </div>
 
-          ) : stages.length === 0 ? (
-
-            <div className="admin-empty">
-
-              <h3>
-                لا توجد مراحل متاحة حاليًا
-              </h3>
-
-            </div>
-
-          ) : (
+          ) : stages.length > 0 ? (
 
             <div className="stages-grid">
 
@@ -567,9 +537,7 @@ function HomePage() {
                       {stage.image_url ? (
 
                         <img
-                          src={
-                            stage.image_url
-                          }
+                          src={stage.image_url}
                           alt={`مرحلة ${stage.name}`}
                           className="stage-image"
                         />
@@ -580,7 +548,7 @@ function HomePage() {
 
                       )}
 
-                      <div className="stage-image-overlay" />
+                      <div className="stage-image-overlay"></div>
 
                       <span className="stage-label">
                         مرحلة كشفية
@@ -607,6 +575,7 @@ function HomePage() {
                           )
                         }
                       >
+
                         <span>
                           استعرض المرحلة
                         </span>
@@ -623,6 +592,16 @@ function HomePage() {
 
                 )
               )}
+
+            </div>
+
+          ) : (
+
+            <div className="admin-empty">
+
+              <h3>
+                لا توجد مراحل متاحة حاليًا
+              </h3>
 
             </div>
 

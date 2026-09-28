@@ -1,31 +1,15 @@
-import {
-  useEffect,
-  useState,
-} from "react";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
-import {
-  useNavigate,
-  useParams,
-} from "react-router-dom";
+import logo from "../assets/saint-mina-logo.jpg";
 
 function StagePage() {
+  const { stageId } = useParams();
   const navigate = useNavigate();
 
-  const { stageId } =
-    useParams();
-
-  const [stage, setStage] =
-    useState(null);
-
-  const [loading, setLoading] =
-    useState(true);
-
-  const [error, setError] =
-    useState("");
-
-  // ==========================================
-  // LOAD STAGE FROM D1
-  // ==========================================
+  const [stage, setStage] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     async function loadStage() {
@@ -33,37 +17,27 @@ function StagePage() {
         setLoading(true);
         setError("");
 
-        const response =
-          await fetch("/api/stages");
+        const response = await fetch("/api/stages");
 
         if (!response.ok) {
-          throw new Error(
-            "Failed to load stages"
-          );
+          throw new Error("Failed to load stages");
         }
 
-        const stages =
-          await response.json();
+        const stages = await response.json();
 
-        const currentStage =
-          stages.find(
-            (item) =>
-              item.slug === stageId
-          );
+        const currentStage = stages.find(
+          (item) => item.slug === stageId
+        );
 
         if (!currentStage) {
-          setError(
-            "لم يتم العثور على المرحلة."
-          );
-
+          setError("المرحلة غير موجودة");
           return;
         }
 
         setStage(currentStage);
       } catch (error) {
-        setError(
-          "حدث خطأ أثناء تحميل بيانات المرحلة."
-        );
+        console.error(error);
+        setError("حدث خطأ أثناء تحميل المرحلة");
       } finally {
         setLoading(false);
       }
@@ -72,258 +46,215 @@ function StagePage() {
     loadStage();
   }, [stageId]);
 
-  // ==========================================
-  // LOADING
-  // ==========================================
-
   if (loading) {
     return (
-      <div
-        className="page-state"
-        dir="rtl"
-      >
-        <h2>
-          جاري تحميل المرحلة...
-        </h2>
+      <div className="not-found-page">
+        <h1>جاري تحميل المرحلة...</h1>
       </div>
     );
   }
-
-  // ==========================================
-  // ERROR
-  // ==========================================
 
   if (error || !stage) {
     return (
-      <div
-        className="page-state"
-        dir="rtl"
-      >
-        <h2>
-          {error ||
-            "لم يتم العثور على المرحلة."}
-        </h2>
+      <div className="not-found-page">
+        <h1>{error || "المرحلة غير موجودة"}</h1>
 
-        <button
-          onClick={() =>
-            navigate("/")
-          }
-        >
-          العودة للرئيسية
+        <button onClick={() => navigate("/")}>
+          العودة إلى الرئيسية
         </button>
       </div>
     );
   }
 
-  const leaderGuidePdf =
-    stage.leader_guide_pdf_key || "";
+  const leaderGuide = {
+    title:
+      stage.leader_guide_title || "دليل القائد",
 
-  // ==========================================
-  // PAGE
-  // ==========================================
+    pdfUrl:
+      stage.leader_guide_pdf_key || "",
+
+    updatedAt:
+      stage.leader_guide_updated_at || "",
+  };
 
   return (
-    <div
-      className="stage-page"
-      dir="rtl"
-    >
-      {/* ======================================
-          HERO
-      ====================================== */}
-
-      <section className="stage-hero">
-
-        <button
-          className="back-link"
-          onClick={() =>
-            navigate("/")
-          }
-        >
-          ← العودة للرئيسية
-        </button>
-
-        <span className="section-label">
-          المرحلة
-        </span>
-
-        <h1>
-          {stage.name}
-        </h1>
-
-        {stage.description && (
-          <p>
-            {stage.description}
-          </p>
-        )}
-
-      </section>
-
-      {/* ======================================
-          INTRODUCTION
-      ====================================== */}
-
-      <section className="stage-section">
-
-        <div className="section-heading">
-          <div>
-            <span>
-              تعرف على المرحلة
-            </span>
-
-            <h2>
-              نبذة عن المرحلة
-            </h2>
-          </div>
-        </div>
-
-        <div className="stage-intro-card">
-
-          {stage.image_url && (
-            <div className="stage-intro-image">
-              <img
-                src={stage.image_url}
-                alt={stage.name}
-              />
-            </div>
-          )}
-
-          <div className="stage-intro-content">
-
-            {stage.intro ? (
-              <p>
-                {stage.intro}
-              </p>
-            ) : (
-              <p>
-                سيتم إضافة نبذة المرحلة قريبًا.
-              </p>
-            )}
-
-          </div>
-
-        </div>
-
-      </section>
-
-      {/* ======================================
-          LEADER GUIDE
-      ====================================== */}
-
-      <section className="stage-section">
-
-        <div className="section-heading">
-          <div>
-            <span>
-              للقادة
-            </span>
-
-            <h2>
-              {stage.leader_guide_title ||
-                "دليل القائد"}
-            </h2>
-          </div>
-        </div>
-
-        <div className="leader-guide-card">
-
-          <div className="leader-guide-info">
-
-            <div className="leader-guide-icon">
-              PDF
-            </div>
-
-            <div>
-              <h3>
-                {stage.leader_guide_title ||
-                  "دليل القائد"}
-              </h3>
-
-              <p>
-                الدليل الخاص بقادة مرحلة{" "}
-                {stage.name}
-              </p>
-
-              {stage.leader_guide_updated_at && (
-                <small>
-                  آخر تحديث:{" "}
-                  {
-                    stage.leader_guide_updated_at
-                  }
-                </small>
-              )}
-            </div>
-
-          </div>
-
-          {leaderGuidePdf ? (
-            <div className="leader-guide-actions">
-
-              <a
-                href={leaderGuidePdf}
-                target="_blank"
-                rel="noreferrer"
-                className="lecture-open-button"
-              >
-                فتح الدليل
-              </a>
-
-              <a
-                href={leaderGuidePdf}
-                download
-                className="lecture-download-button"
-              >
-                تحميل PDF
-              </a>
-
-            </div>
-          ) : (
-            <span className="guide-unavailable">
-              سيتم إضافة الدليل قريبًا
-            </span>
-          )}
-
-        </div>
-
-      </section>
-
-      {/* ======================================
-          CURRICULUM
-      ====================================== */}
-
-      <section className="stage-section stage-curriculum-section">
-
-        <div className="stage-curriculum-card">
-
-          <div>
-            <span className="section-label">
-              المحتوى التدريبي
-            </span>
-
-            <h2>
-              المناهج
-            </h2>
-
-            <p>
-              استعرض المجالات والمحاضرات
-              الخاصة بمرحلة {stage.name}.
-            </p>
-          </div>
-
+    <div className="website stage-page">
+      <header className="navbar stage-navbar">
+        <div className="navbar-container">
           <button
-            className="primary-button"
-            onClick={() =>
-              navigate(
-                `/stage/${stage.slug}/curriculum`
-              )
-            }
+            className="brand brand-button"
+            onClick={() => navigate("/")}
           >
-            عرض المناهج
+            <img
+              src={logo}
+              alt="شعار كشافة كنيسة مارمينا"
+              className="brand-logo"
+            />
+
+            <div className="brand-text">
+              <h1>كشافة كنيسة مارمينا</h1>
+              <span>Saint Mina Scouts</span>
+            </div>
           </button>
 
+          <nav className="nav-links stage-nav-links">
+            <button onClick={() => navigate("/")}>
+              الرئيسية
+            </button>
+
+            <button
+              onClick={() => {
+                navigate("/");
+
+                setTimeout(() => {
+                  document
+                    .getElementById("stages")
+                    ?.scrollIntoView({
+                      behavior: "smooth",
+                    });
+                }, 100);
+              }}
+            >
+              المراحل
+            </button>
+          </nav>
+
+          <button
+            className="back-home-button"
+            onClick={() => navigate("/")}
+          >
+            العودة للرئيسية
+          </button>
         </div>
+      </header>
 
-      </section>
+      <main>
+        <section className="stage-hero">
+          <div className="stage-hero-overlay"></div>
 
+          <div className="stage-hero-content">
+            <span className="stage-hero-label">
+              المراحل الكشفية
+            </span>
+
+            <h2>مرحلة {stage.name}</h2>
+
+            <p>
+              تعرف على المرحلة ودليل القائد والمناهج
+              التدريبية الخاصة بها.
+            </p>
+          </div>
+        </section>
+
+        <section className="stage-intro-section">
+          <div className="stage-content-container">
+            <div className="stage-section-heading">
+              <span>عن المرحلة</span>
+
+              <h2>
+                نبذة عن مرحلة {stage.name}
+              </h2>
+            </div>
+
+            <div className="stage-intro-card">
+              <p>
+                {stage.intro ||
+                  "سيتم إضافة نبذة المرحلة قريبًا."}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="leader-guide-section">
+          <div className="stage-content-container">
+            <div className="leader-guide-card">
+              <div className="leader-guide-content">
+                <span className="guide-small-title">
+                  دليل القائد
+                </span>
+
+                <h2>{leaderGuide.title}</h2>
+
+                <p>
+                  الدليل المرجعي الخاص بقائد المرحلة،
+                  ويمكن عرضه مباشرة أو تحميله للاستخدام
+                  عند الحاجة.
+                </p>
+
+                {leaderGuide.updatedAt && (
+                  <span className="guide-updated-date">
+                    آخر تحديث: {leaderGuide.updatedAt}
+                  </span>
+                )}
+
+                {leaderGuide.pdfUrl ? (
+                  <div className="leader-guide-actions">
+                    <a
+                      href={leaderGuide.pdfUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="guide-primary-button"
+                    >
+                      عرض الدليل
+                    </a>
+
+                    <a
+                      href={leaderGuide.pdfUrl}
+                      download={`${leaderGuide.title}.pdf`}
+                      className="guide-secondary-button"
+                    >
+                      تحميل الدليل
+                    </a>
+                  </div>
+                ) : (
+                  <div className="leader-guide-actions">
+                    <span>
+                      سيتم إضافة دليل القائد قريبًا.
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div className="guide-document-preview">
+                <div className="document-icon">
+                  PDF
+                </div>
+
+                <span>دليل القائد</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="stage-curriculum-section">
+          <div className="stage-content-container">
+            <div className="curriculum-callout">
+              <span>المحتوى التدريبي</span>
+
+              <h2>
+                مناهج مرحلة {stage.name}
+              </h2>
+
+              <p>
+                استعرض المجالات والمحاضرات والمحتوى
+                التدريبي الخاص بهذه المرحلة.
+              </p>
+
+              <button
+                className="curriculum-button"
+                onClick={() =>
+                  navigate(
+                    `/stage/${stage.slug}/curriculum`
+                  )
+                }
+              >
+                استعرض المناهج
+                <span>←</span>
+              </button>
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
   );
 }

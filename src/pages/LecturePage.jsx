@@ -1,17 +1,23 @@
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
+
 import {
   useNavigate,
   useParams,
 } from "react-router-dom";
 
-function LecturePage() {
-  const navigate = useNavigate();
+import logo from "../assets/saint-mina-logo.jpg";
 
+function LecturePage() {
   const {
     stageId,
     fieldId,
     lectureId,
   } = useParams();
+
+  const navigate = useNavigate();
 
   const [stage, setStage] =
     useState(null);
@@ -28,51 +34,39 @@ function LecturePage() {
   const [error, setError] =
     useState("");
 
-  // ==========================================
-  // LOAD LECTURE FROM D1
-  // ==========================================
-
   useEffect(() => {
     async function loadLecture() {
       try {
         setLoading(true);
         setError("");
 
-        // --------------------------------------
-        // LOAD STAGE
-        // --------------------------------------
-
+        // Load stage
         const stagesResponse =
           await fetch("/api/stages");
 
         if (!stagesResponse.ok) {
-          throw new Error(
-            "Failed to load stages"
-          );
+          throw new Error();
         }
 
-        const stagesData =
+        const stages =
           await stagesResponse.json();
 
         const currentStage =
-          stagesData.find(
+          stages.find(
             (item) =>
               item.slug === stageId
           );
 
         if (!currentStage) {
           setError(
-            "لم يتم العثور على المرحلة."
+            "المرحلة غير موجودة"
           );
           return;
         }
 
         setStage(currentStage);
 
-        // --------------------------------------
-        // LOAD FIELD
-        // --------------------------------------
-
+        // Load field
         const fieldsResponse =
           await fetch(
             `/api/fields?stage=${encodeURIComponent(
@@ -81,33 +75,28 @@ function LecturePage() {
           );
 
         if (!fieldsResponse.ok) {
-          throw new Error(
-            "Failed to load fields"
-          );
+          throw new Error();
         }
 
-        const fieldsData =
+        const fields =
           await fieldsResponse.json();
 
         const currentField =
-          fieldsData.find(
+          fields.find(
             (item) =>
               item.slug === fieldId
           );
 
         if (!currentField) {
           setError(
-            "لم يتم العثور على المجال."
+            "المجال غير موجود"
           );
           return;
         }
 
         setField(currentField);
 
-        // --------------------------------------
-        // LOAD LECTURES
-        // --------------------------------------
-
+        // Load lectures
         const lecturesResponse =
           await fetch(
             `/api/lectures?stage=${encodeURIComponent(
@@ -118,31 +107,31 @@ function LecturePage() {
           );
 
         if (!lecturesResponse.ok) {
-          throw new Error(
-            "Failed to load lectures"
-          );
+          throw new Error();
         }
 
-        const lecturesData =
+        const lectures =
           await lecturesResponse.json();
 
         const currentLecture =
-          lecturesData.find(
+          lectures.find(
             (item) =>
               item.slug === lectureId
           );
 
         if (!currentLecture) {
           setError(
-            "لم يتم العثور على المحاضرة."
+            "المحاضرة غير موجودة"
           );
           return;
         }
 
         setLecture(currentLecture);
       } catch (error) {
+        console.error(error);
+
         setError(
-          "حدث خطأ أثناء تحميل المحاضرة."
+          "حدث خطأ أثناء تحميل المحاضرة"
         );
       } finally {
         setLoading(false);
@@ -156,26 +145,15 @@ function LecturePage() {
     lectureId,
   ]);
 
-  // ==========================================
-  // LOADING
-  // ==========================================
-
   if (loading) {
     return (
-      <div
-        className="page-state"
-        dir="rtl"
-      >
-        <h2>
+      <div className="not-found-page">
+        <h1>
           جاري تحميل المحاضرة...
-        </h2>
+        </h1>
       </div>
     );
   }
-
-  // ==========================================
-  // ERROR
-  // ==========================================
 
   if (
     error ||
@@ -184,24 +162,21 @@ function LecturePage() {
     !lecture
   ) {
     return (
-      <div
-        className="page-state"
-        dir="rtl"
-      >
-        <h2>
+      <div className="not-found-page">
+
+        <h1>
           {error ||
-            "لم يتم العثور على المحاضرة."}
-        </h2>
+            "المحاضرة غير موجودة"}
+        </h1>
 
         <button
           onClick={() =>
-            navigate(
-              `/stage/${stageId}/curriculum/${fieldId}`
-            )
+            navigate("/")
           }
         >
-          العودة إلى المحاضرات
+          العودة إلى الرئيسية
         </button>
+
       </div>
     );
   }
@@ -209,123 +184,317 @@ function LecturePage() {
   const pdfUrl =
     lecture.pdf_key || "";
 
-  // ==========================================
-  // PAGE
-  // ==========================================
+  const updatedDate =
+    lecture.updated_date || "";
 
   return (
-    <div
-      className="lecture-page"
-      dir="rtl"
-    >
-      {/* HERO */}
+    <div className="website lecture-page">
 
-      <section className="lecture-hero">
+      <header className="navbar lecture-navbar">
 
-        <button
-          className="back-link"
-          onClick={() =>
-            navigate(
-              `/stage/${stageId}/curriculum/${fieldId}`
-            )
-          }
-        >
-          ← العودة إلى المحاضرات
-        </button>
+        <div className="navbar-container">
 
-        <div className="lecture-breadcrumb">
-          <span>
-            {stage.name}
-          </span>
+          <button
+            className="brand brand-button"
+            onClick={() =>
+              navigate("/")
+            }
+          >
+            <img
+              src={logo}
+              alt="شعار كشافة كنيسة مارمينا"
+              className="brand-logo"
+            />
 
-          <span>•</span>
+            <div className="brand-text">
+              <h1>
+                كشافة كنيسة مارمينا
+              </h1>
 
-          <span>
-            {field.name}
-          </span>
+              <span>
+                Saint Mina Scouts
+              </span>
+            </div>
+          </button>
+
+          <nav className="nav-links stage-nav-links">
+
+            <button
+              onClick={() =>
+                navigate("/")
+              }
+            >
+              الرئيسية
+            </button>
+
+            <button
+              onClick={() =>
+                navigate(
+                  `/stage/${stage.slug}`
+                )
+              }
+            >
+              مرحلة {stage.name}
+            </button>
+
+            <button
+              onClick={() =>
+                navigate(
+                  `/stage/${stage.slug}/curriculum`
+                )
+              }
+            >
+              المناهج
+            </button>
+
+          </nav>
+
+          <button
+            className="back-home-button"
+            onClick={() =>
+              navigate(
+                `/stage/${stage.slug}/curriculum/${field.slug}`
+              )
+            }
+          >
+            العودة للمحاضرات
+          </button>
+
         </div>
 
-        <h1>
-          {lecture.title}
-        </h1>
+      </header>
 
-        {lecture.description && (
-          <p>
-            {lecture.description}
-          </p>
-        )}
+      <main>
 
-        {lecture.updated_date && (
-          <div className="lecture-updated">
-            آخر تحديث:{" "}
-            {lecture.updated_date}
-          </div>
-        )}
-      </section>
+        <section className="lecture-hero">
 
-      {/* PDF CONTENT */}
+          <div className="lecture-hero-overlay" />
 
-      <section className="lecture-content">
+          <div className="lecture-hero-content">
 
-        <div className="lecture-content-heading">
-          <div>
-            <span className="section-label">
-              المحتوى التدريبي
+            <div className="breadcrumb">
+
+              <button
+                onClick={() =>
+                  navigate("/")
+                }
+              >
+                الرئيسية
+              </button>
+
+              <span>←</span>
+
+              <button
+                onClick={() =>
+                  navigate(
+                    `/stage/${stage.slug}`
+                  )
+                }
+              >
+                {stage.name}
+              </button>
+
+              <span>←</span>
+
+              <button
+                onClick={() =>
+                  navigate(
+                    `/stage/${stage.slug}/curriculum`
+                  )
+                }
+              >
+                المناهج
+              </button>
+
+              <span>←</span>
+
+              <button
+                onClick={() =>
+                  navigate(
+                    `/stage/${stage.slug}/curriculum/${field.slug}`
+                  )
+                }
+              >
+                {field.name}
+              </button>
+
+              <span>←</span>
+
+              <strong>
+                {lecture.title}
+              </strong>
+
+            </div>
+
+            <span className="lecture-hero-label">
+              {field.name}
             </span>
 
             <h2>
-              ملف المحاضرة
+              {lecture.title}
             </h2>
-          </div>
-
-          {pdfUrl && (
-            <div className="lecture-actions">
-
-              <a
-                href={pdfUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="lecture-open-button"
-              >
-                فتح بالحجم الكامل
-              </a>
-
-              <a
-                href={pdfUrl}
-                download={
-                  lecture.pdf_original_name ||
-                  `${lecture.title}.pdf`
-                }
-                className="lecture-download-button"
-              >
-                تحميل PDF
-              </a>
-
-            </div>
-          )}
-        </div>
-
-        {!pdfUrl ? (
-          <div className="empty-state">
-            <h3>
-              ملف المحاضرة غير متاح حاليًا
-            </h3>
 
             <p>
-              سيتم إضافة ملف PDF قريبًا.
-            </p>
-          </div>
-        ) : (
-          <div className="pdf-viewer-wrapper">
-            <iframe
-              src={pdfUrl}
-              title={lecture.title}
-              className="pdf-viewer"
-            />
-          </div>
-        )}
+              مرحلة {stage.name}
 
-      </section>
+              {updatedDate && (
+                <>
+                  <span className="lecture-dot">
+                    •
+                  </span>
+
+                  آخر تحديث:{" "}
+                  {updatedDate}
+                </>
+              )}
+            </p>
+
+          </div>
+
+        </section>
+
+        <section className="lecture-document-section">
+
+          <div className="lecture-document-container">
+
+            <div className="lecture-document-header">
+
+              <div>
+
+                <span className="document-small-label">
+                  الملف التدريبي
+                </span>
+
+                <h2>
+                  {lecture.title}
+                </h2>
+
+                <p>
+                  {lecture.description ||
+                    "يمكنك قراءة المحاضرة مباشرة من خلال الموقع أو تحميل الملف على جهازك."}
+                </p>
+
+              </div>
+
+              {pdfUrl && (
+                <a
+                  href={pdfUrl}
+                  download={`${lecture.title}.pdf`}
+                  className="main-download-button"
+                >
+                  <span>
+                    تحميل PDF
+                  </span>
+
+                  <span className="download-icon">
+                    ↓
+                  </span>
+                </a>
+              )}
+
+            </div>
+
+            {pdfUrl ? (
+
+              <div className="pdf-viewer-card">
+
+                <div className="pdf-viewer-topbar">
+
+                  <div className="pdf-file-info">
+
+                    <div className="mini-pdf-icon">
+                      PDF
+                    </div>
+
+                    <div>
+
+                      <strong>
+                        {lecture.title}
+                      </strong>
+
+                      <span>
+                        {updatedDate
+                          ? `آخر تحديث: ${updatedDate}`
+                          : "ملف PDF"}
+                      </span>
+
+                    </div>
+
+                  </div>
+
+                  <a
+                    href={pdfUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="open-fullscreen-button"
+                  >
+                    فتح بحجم كامل
+                  </a>
+
+                </div>
+
+                <div className="pdf-viewer-wrapper">
+
+                  <iframe
+                    src={pdfUrl}
+                    title={`ملف محاضرة ${lecture.title}`}
+                    className="pdf-viewer"
+                  />
+
+                </div>
+
+              </div>
+
+            ) : (
+
+              <div className="lectures-empty-state">
+
+                <span>PDF</span>
+
+                <h3>
+                  الملف غير متاح حاليًا
+                </h3>
+
+                <p>
+                  سيتم إضافة ملف المحاضرة قريبًا.
+                </p>
+
+              </div>
+
+            )}
+
+            <div className="lecture-bottom-actions">
+
+              <button
+                className="return-to-lectures-button"
+                onClick={() =>
+                  navigate(
+                    `/stage/${stage.slug}/curriculum/${field.slug}`
+                  )
+                }
+              >
+                العودة إلى محاضرات{" "}
+                {field.name}
+              </button>
+
+              {pdfUrl && (
+                <a
+                  href={pdfUrl}
+                  download={`${lecture.title}.pdf`}
+                  className="secondary-download-button"
+                >
+                  تحميل المحاضرة
+                </a>
+              )}
+
+            </div>
+
+          </div>
+
+        </section>
+
+      </main>
+
     </div>
   );
 }
