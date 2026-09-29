@@ -83,6 +83,11 @@ function AdminPage() {
     setEditLeaderGuideDate,
   ] = useState("");
 
+  const [
+    editLeaderGuidePdfFile,
+    setEditLeaderGuidePdfFile,
+  ] = useState(null);
+
   const [updatingStage, setUpdatingStage] =
     useState(false);
 
@@ -297,12 +302,15 @@ function AdminPage() {
     setEditLeaderGuideDate(
       stage.leader_guide_updated_at || ""
     );
+
+    setEditLeaderGuidePdfFile(null);
   }
 
   function closeEditStage() {
     if (updatingStage) return;
 
     setEditingStage(null);
+    setEditLeaderGuidePdfFile(null);
   }
 
   async function handleEditStage(event) {
@@ -318,6 +326,15 @@ function AdminPage() {
     try {
       setUpdatingStage(true);
       setError("");
+
+      let leaderGuidePdfKey = editLeaderGuidePdf.trim();
+
+      if (editLeaderGuidePdfFile) {
+        const uploadedPdf = await uploadPdf(
+          editLeaderGuidePdfFile
+        );
+        leaderGuidePdfKey = uploadedPdf.pdfKey;
+      }
 
       const response = await fetch(
         "/api/admin/stages",
@@ -347,8 +364,7 @@ function AdminPage() {
             leaderGuideTitle:
               editLeaderGuideTitle.trim(),
 
-            leaderGuidePdfKey:
-              editLeaderGuidePdf.trim(),
+            leaderGuidePdfKey,
 
             leaderGuideUpdatedAt:
               editLeaderGuideDate,
@@ -1889,25 +1905,33 @@ function AdminPage() {
               <div className="admin-form-group">
 
                 <label>
-                  مسار ملف دليل القائد PDF
+                  ملف دليل القائد PDF
                 </label>
 
+                {editLeaderGuidePdf && (
+                  <a
+                    className="admin-pdf-link"
+                    href={getPdfUrl(editLeaderGuidePdf)}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    معاينة دليل القائد الحالي
+                  </a>
+                )}
+
                 <input
-                  value={
-                    editLeaderGuidePdf
-                  }
+                  type="file"
+                  accept="application/pdf,.pdf"
                   onChange={(event) =>
-                    setEditLeaderGuidePdf(
-                      event.target.value
+                    setEditLeaderGuidePdfFile(
+                      event.target.files?.[0] || null
                     )
                   }
-                  placeholder="/pdfs/leader-guide.pdf"
                 />
 
                 <small>
-                  رفع الملفات من لوحة التحكم
-                  سنضيفه في مرحلة التخزين.
-                  حاليًا يتم استخدام مسار PDF.
+                  اختر ملف PDF جديد لإضافة أو استبدال دليل القائد.
+                  اتركه بدون اختيار ملف للاحتفاظ بالدليل الحالي.
                 </small>
 
               </div>
